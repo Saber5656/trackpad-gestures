@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Normalized contact frame v1",
+  "description": "Immutable full active-contact snapshot plus terminal contacts. Lower-left origin. Optional fields absent when not observed. No serial. Semantic stream rules in DESIGN.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "timestamp",
+    "sessionID",
+    "transport",
+    "capabilities",
+    "contacts",
+    "modifiers"
+  ],
+  "properties": {
+    "timestamp": {
+      "type": "number",
+      "minimum": 0
+    },
+    "sessionID": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 256
+    },
+    "transport": {
+      "enum": [
+        "usb",
+        "bluetooth",
+        "simulation",
+        "unknown"
+      ]
+    },
+    "capabilities": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "pressure",
+          "area",
+          "highResolution",
+          "multiTouch",
+          "contactIdentity",
+          "normalizedCoordinates",
+          "nativeScroll",
+          "nativePinch"
+        ]
+      }
+    },
+    "contacts": {
+      "type": "array",
+      "maxItems": 10,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "x",
+          "y",
+          "phase"
+        ],
+        "properties": {
+          "id": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "x": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "y": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "phase": {
+            "enum": [
+              "began",
+              "moved",
+              "stationary",
+              "ended",
+              "cancelled"
+            ]
+          },
+          "pressure": {
+            "type": "number",
+            "minimum": 0
+          },
+          "area": {
+            "type": "number",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    "appScope": {
+      "type": "string"
+    },
+    "modifiers": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "enum": [
+          "command",
+          "option",
+          "control",
+          "shift",
+          "function",
+          "capsLock"
+        ]
+      }
+    },
+    "interference": {
+      "enum": [
+        "scroll",
+        "pinch",
+        "rotate"
+      ]
+    }
+  }
+}

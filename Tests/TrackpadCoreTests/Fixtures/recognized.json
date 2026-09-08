@@ -1,0 +1,88 @@
+{
+  "provenance": "synthetic; no device data",
+  "definitions": [
+    {
+      "id": "tap",
+      "name": "Tap",
+      "kind": "tap",
+      "fingerCount": 3,
+      "zone": "any",
+      "movementThreshold": 0.06,
+      "minDuration": 0,
+      "maxDuration": 0.35,
+      "modifiers": [],
+      "priority": 0,
+      "cooldown": 0.5,
+      "actionID": "beep",
+      "requiredCapabilities": [],
+      "enabled": true
+    }
+  ],
+  "frames": [
+    {
+      "timestamp": 0,
+      "sessionID": "synthetic-fixture",
+      "transport": "simulation",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "0",
+          "x": 0.2,
+          "y": 0.3,
+          "phase": "began"
+        },
+        {
+          "id": "1",
+          "x": 0.26,
+          "y": 0.3,
+          "phase": "began"
+        },
+        {
+          "id": "2",
+          "x": 0.32,
+          "y": 0.3,
+          "phase": "began"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 0.15,
+      "sessionID": "synthetic-fixture",
+      "transport": "simulation",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "0",
+          "x": 0.2,
+          "y": 0.3,
+          "phase": "ended"
+        },
+        {
+          "id": "1",
+          "x": 0.26,
+          "y": 0.3,
+          "phase": "ended"
+        },
+        {
+          "id": "2",
+          "x": 0.32,
+          "y": 0.3,
+          "phase": "ended"
+        }
+      ],
+      "modifiers": []
+    }
+  ],
+  "expectedIDs": [
+    "tap"
+  ]
+}
