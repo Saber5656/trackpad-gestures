@@ -1,0 +1,39 @@
+# Delivery and remaining issues
+
+Local planning IDs only: no GitHub repository/Issues were created.
+
+| ID | Deliverable | Dependency | Current acceptance |
+|---|---|---|---|
+| M-00 | Public API probe and wired reference evidence | — | Probe implemented; wired hardware/global vocabulary not verified |
+| P-01 | Hardware/API/language/license/distribution ADR | M-00 | Swift/public-only experiment chosen; license/distribution pending |
+| C-01 | Strict versioned input/config contract | P-01 | Implemented with tests; see validation |
+| C-02 | Deterministic core, replay, seeded fuzz | C-01 | Synthetic validation; hardware false-trigger validation pending |
+| M-01 | Capture, permissions, lifecycle | M-00,C-01 | Experimental local view + discovery; global USB adapter blocked on evidence |
+| M-02 | Safe actions, onboarding | P-01,C-01 | Manual handler actions; key injection unsupported |
+| U-01 | Gesture editor, visualizer, conflicts, import/export | C-01,C-02 | Local implementation; source limitations visible |
+| M-03 | Build, package, whole-product checks | M-01,M-02,U-01 | Local simulation build; full device/distribution acceptance open |
+| W-00 | Windows 11 x64 wired feasibility | M-03 | Future; no implementation |
+| W-01 | Windows adapter | W-00 | Future |
+| R-01 | macOS/Windows Bluetooth | M-03,W-01 | Future |
+
+```mermaid
+graph LR
+M00[M-00] --> P01[P-01]
+P01 --> C01[C-01]
+C01 --> C02[C-02]
+M00 --> M01[M-01]
+C01 --> M01
+P01 --> M02[M-02]
+C01 --> M02
+C01 --> U01[U-01]
+C02 --> U01
+M01 --> M03[M-03]
+M02 --> M03
+U01 --> M03
+M03 --> W00[W-00]
+W00 --> W01[W-01]
+M03 --> R01[R-01]
+W01 --> R01
+```
+
+Independent schema/core/editor work proceeds despite missing hardware; this does not close M-00. Next priorities: wired reference capture, global API/distribution choice if needed, false-trigger/lifecycle hardware matrix, safe keyboard design proof, signed distribution only after explicit approval.
