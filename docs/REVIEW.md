@@ -32,3 +32,18 @@ No known unaddressed blocking finding remains for the **local simulation prototy
 The review's suggestion to duplicate all codec size validation in the UI was only partially adopted: the codec already limits input size/item counts; the actual unbounded file read and persistence defense were fixed. No second independent schema validator or guessed capture backend was added.
 
 All committed files were checked for personal absolute paths, secret-like tokens, whitespace errors and broken local document links. No third-party protocol/driver implementation was copied. Final documentation changes do not change executable behavior and are outside TDD; consistency checks apply.
+
+## USB follow-up review
+
+A separate Luna reviewer used `task/capture-audit` in an isolated worktree while the main agent performed device observation and implementation.
+
+- Adopted: bare RunLoop can miss AppKit dispatch. Replaced it with `nextEvent` / `sendEvent`; isolated process sentinel fails on the old path and passes on the new one.
+- Adopted: HID counters alone cannot establish exposed fields. Added bounded public descriptor inventory with all-element Digitizer summary, explicit truncation and unavailable state; five focused tests and real USB enumeration.
+- Adopted: Input Monitoring preflight is not an actual IOHID open result. `hidOpenAttempted` now distinguishes a skipped open; `hidOpenStatus` is absent when not attempted. No permission prompt is requested merely to test denial.
+- Deferred to unlocked hardware validation: `.any` touch snapshots and sequential arrival/lift must be checked against actual responder callbacks. A persistent active-contact cache was not added on speculation, since retaining an unobserved contact could conceal loss; current core cancels missing active contacts.
+- Confirmed limitation: `wantsRestingTouches` is false in the experimental local adapter. Apple documents resting-touch exclusion and generated began/ended transitions. Finger count therefore describes delivered active touches, not all physical fingers. Resting transitions and a future explicit resting-contact policy must be verified before any real gesture action is armed. See [Apple resting touch behavior](https://developer.apple.com/documentation/appkit/nsview/wantsrestingtouches).
+- Not adopted without evidence: deprecated `acceptsTouchEvents` was not added alongside the current `allowedTouchTypes` API.
+
+Final limited independent review found no blocking safety defect and one conditional collection-limit issue. Adopted: `totalCollectionCount` and `collectionsTruncated` now expose a 16-collection cap; unavailable enumeration has absent totals. The final source was self-reviewed, rebuilt and tested after this fix.
+
+No USB global gesture pass is claimed. The Mac remained locked, so the GUI/physical input blocker is separate from the corrected probe and passing automated tests. No private protocol implementation, new privileges or distribution change was introduced.

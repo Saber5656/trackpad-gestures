@@ -1,6 +1,7 @@
 # M-00 — public API feasibility evidence
 
-Status: **NOT PASSED / USB reference hardware unavailable**. 2026-09-08.
+Status: **NOT PASSED / USB device metadata confirmed; unlocked physical input pending**. 2026-09-08.
+Initial observations below are preserved; see the USB follow-up for the current hardware state.
 This is executable feasibility work, not certification of a global customizer.
 
 ## Environment and execution
@@ -57,3 +58,29 @@ No option has been silently selected. This build is the independent simulation/l
 6. Test disconnect/reconnect, sleep/resume, lock/unlock, permission deny/grant/revoke/change, app quit/crash/kill -9. Preview must cancel and require explicit restart; native mouse must continue. No action is armed by default or restored from imports.
 7. Measure 30-minute idle/active usage externally; app capture itself expires after 30s and never persistently records raw touches. Measure CPU/RSS and known physical sequences versus observed counts. Only claim event loss/latency with a known reference clock and source count.
 8. Save pass/fail/untested for every scenario, application identity category (no document names), and redacted counters. Signing/notarization/sandbox testing requires separate authorization.
+
+## USB follow-up — 2026-09-08
+
+The operator connected the trackpad to the Mac mini. Read-only discovery now reports **USB**, Apple VID **0x05ac**, PID **0x0324**, IOHID VersionNumber **1296 / 0x0510**. This is advertised metadata, not a verified firmware version or independent proof of USB-C model generation. Same host: macOS 26.6.2 (25G83), arm64.
+
+The GUI control surface reports the Mac is locked. The operator was asked to unlock manually. No credentials were read, no lock bypass or security setting change was attempted. All observations in this follow-up were made before an operator-confirmed unlock or a physical gesture sequence. Zero event counters are **inconclusive**, not a global capture failure result.
+
+Public `IOHIDDeviceCopyMatchingElements` / `IOHIDElementGet*` inventory:
+
+| Primary usage page / usage | Returned elements | Standard Digitizer input elements (all returned elements) | Descriptor sample |
+|---|---:|---:|---|
+| 0x0001 / 2 | 1,407 | 0 | First 256; truncated explicitly |
+| 0xFF00 / 11 | 35 | 0 | Complete |
+| 0xFF00 / 13 | 9 | 0 | Complete |
+
+The standard Digitizer summary counts input element types 1–4 with usage page 0x0d across the entire returned array, including elements outside the bounded sample. Enumeration failure is `available: false` with absent counts, not a fabricated successful empty inventory. At most 16 collections and 256 descriptor samples per collection are retained. `totalCollectionCount` and `collectionsTruncated` disclose omitted collections; final USB inventory contained 3 collections with no collection truncation. Samples contain static type/usage/report size/count/range/relative metadata only. No report bytes, current element values, serial or persistent device identity are saved.
+
+Relative mouse X/Y, buttons, vendor-defined and battery-related declarations were observed. No standard per-contact declaration was found in these exposed collections. This supports an **unverified/unsupported public HID contact adapter**, not a conclusion that vendor packets can never carry contacts. No vendor decoder or feature/output write was introduced.
+
+An independent-process regression showed that the old bare `RunLoop.run` path did not dispatch an app-local AppKit sentinel. The probe now uses `NSApplication.nextEvent` / `sendEvent` while servicing the run loop. `--verify-dispatch` posts one process-local application-defined sentinel for diagnostic testing; it does not synthesize mouse/key input and is never physical evidence. Normal probes post no events. The old path failed the sentinel test; the corrected path passed. An attempted in-process Swift Testing/AppKit test interfered with runner completion; its exit status was not accepted as a pass and the test was replaced with the isolated-process test.
+
+Corrected 8-second locked observation: JSON duration 8.013s; process 8.57s wall, 0.10s user + 0.03s system, peak RSS 37,421,056 bytes, peak footprint 12,092,016 bytes. Permission preflights remained true for the CLI, tap created, HID open succeeded; event counts were empty. Descriptor enumeration is included in process cost. End-to-end latency/event loss and unlocked coexistence remain unknown.
+
+Next: operator unlock, then foreground view-local tap/hold/swipe with explicit 3-second fixture extraction; background/other-app count comparison and native scroll/click/pinch checks. Do not choose private API distribution or shrink the product vocabulary based on locked idle data.
+
+References: [Apple IOHIDDevice public API](https://developer.apple.com/documentation/iokit/iohiddevice_h_user-space), [Apple event monitoring](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/EventOverview/MonitoringEvents/MonitoringEvents.html), [Apple NSApplication event dispatch](https://developer.apple.com/documentation/appkit/nsapplication/sendevent(_:)). Local SDK `IOHIDElement.h` and `IOHIDUsageTables.h` were also inspected; no implementation was copied.

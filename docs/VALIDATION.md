@@ -41,3 +41,11 @@ Core/schema and app import behavior use failing tests before fixes. The explorat
 - Source/docs privacy scan: no personal home paths or secret-like values; JSON syntax and local Markdown links checked. No signing command, notarization, push, remote repo creation or publication executed.
 
 Raw logs remain in private development context. Reproduction: `scripts/test.sh`; `python3 -m unittest discover -s Tests/PackagingTests`; `scripts/package.sh`; `swift run TrackpadProbe 12`.
+
+## USB follow-up validation
+
+- Swift tests: **50 tests / 12 suites passed**, including descriptor/collection bounds, unavailable enumeration, standard input-vs-feature distinction, and full descriptor summary outside the retained sample. Initial follow-up had 49 tests; the final review added collection-limit coverage.
+- `swift build --product TrackpadProbe` and `python3 -m unittest discover -s Tests/ProbeTests`: **1 isolated-process test passed**. The same test failed with the old bare RunLoop implementation. Its application-defined sentinel tests AppKit dispatch only, not physical input capture.
+- `probe-usb-final.json` was collected by the corrected probe with USB metadata and no raw values. The Mac remained locked; physical gestures, GUI preview and unlocked permission/lifecycle cases remain untested. Final source also passed **50 tests** in the isolated clean-source workspace; final release app rebuilt successfully. Packaging regression remains 1 pass. GUI relaunch/physical input were not rechecked while locked.
+
+- Final collection-summary code initially failed Swift initialization checking. The failure was repaired before acceptance; clean tests and release build were repeated successfully. A process test that accidentally ran a stale binary after the failed build was excluded from acceptance, and rebuilt-binary testing passed. Failure/recovery logs are retained.
