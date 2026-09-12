@@ -37,3 +37,7 @@ W01 --> R01
 ```
 
 Independent schema/core/editor work proceeds despite missing hardware; this does not close M-00. Next priorities: wired reference capture, global API/distribution choice if needed, false-trigger/lifecycle hardware matrix, safe keyboard design proof, signed distribution only after explicit approval.
+
+## Locally registered follow-up
+
+- Packaging backup discoverability: retained `previous.app` bundles share the app identifier and made bundle-ID lookup ambiguous on 2026-09-12. Selecting the explicit current `dist/TrackpadGestures.app` path resolved this run. Future packaging work should retain rollback evidence in a form that is not another discoverable application; do not delete old generated output merely to fix lookup. This is registered only, with no packaging change in the physical-contact confirmation task.

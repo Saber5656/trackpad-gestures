@@ -49,3 +49,9 @@ Raw logs remain in private development context. Reproduction: `scripts/test.sh`;
 - `probe-usb-final.json` was collected by the corrected probe with USB metadata and no raw values. The Mac remained locked; physical gestures, GUI preview and unlocked permission/lifecycle cases remain untested. Final source also passed **50 tests** in the isolated clean-source workspace; final release app rebuilt successfully. Packaging regression remains 1 pass. GUI relaunch/physical input were not rechecked while locked.
 
 - Final collection-summary code initially failed Swift initialization checking. The failure was repaired before acceptance; clean tests and release build were repeated successfully. A process test that accidentally ran a stale binary after the failed build was excluded from acceptance, and rebuilt-binary testing passed. Failure/recovery logs are retained.
+
+## Operator physical confirmation — 2026-09-12
+
+- **Confirmed by operator:** three fingers displayed as three local contact points. Agent subsequently confirmed the app's USB metadata and Local preview selection; active contact screenshot/fixture is not available.
+- **Still pending:** recognition of a complete physical tap/hold/swipe, timestamp/identity/coordinate corpus checks, background/other-app capture and native coexistence. A native-click cancellation message was visible, which must not be presented as successful hold recognition.
+- A preview-only hold definition was prepared using the existing GUI; no source behavior changed. Documentation was self-reviewed for scope/provenance, local link validity and privacy. Prior 50-test/12-suite and build results are reused for unchanged code rather than rerun as supposed new hardware evidence.

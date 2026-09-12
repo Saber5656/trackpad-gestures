@@ -1,6 +1,6 @@
 # M-00 — public API feasibility evidence
 
-Status: **NOT PASSED / USB device metadata confirmed; unlocked physical input pending**. 2026-09-08.
+Status: **NOT PASSED / three-contact local display confirmed by operator; global recognition pending**. Updated 2026-09-12.
 Initial observations below are preserved; see the USB follow-up for the current hardware state.
 This is executable feasibility work, not certification of a global customizer.
 
@@ -84,3 +84,11 @@ Corrected 8-second locked observation: JSON duration 8.013s; process 8.57s wall,
 Next: operator unlock, then foreground view-local tap/hold/swipe with explicit 3-second fixture extraction; background/other-app count comparison and native scroll/click/pinch checks. Do not choose private API distribution or shrink the product vocabulary based on locked idle data.
 
 References: [Apple IOHIDDevice public API](https://developer.apple.com/documentation/iokit/iohiddevice_h_user-space), [Apple event monitoring](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/EventOverview/MonitoringEvents/MonitoringEvents.html), [Apple NSApplication event dispatch](https://developer.apple.com/documentation/appkit/nsapplication/sendevent(_:)). Local SDK `IOHIDElement.h` and `IOHIDUsageTables.h` were also inspected; no implementation was copied.
+
+## First physical local-contact confirmation — 2026-09-12
+
+The operator followed the local-preview procedure and reported that placing three fingers displayed three contact points. This is **operator-confirmed physical three-contact display inside the app's receiving view**. A subsequent GUI read showed USB Magic Trackpad metadata (0x05ac / 0x0324), Local preview selected, and a nonzero last-frame core timing. The contacts had already ended; no screenshot or raw fixture of the active three-contact state was obtained by the agent.
+
+This confirms the view-local public AppKit path can deliver enough contact information for three displayed points in this setup. It does not certify coordinate accuracy, stable identity across transitions, complete phase delivery, resting fingers, global background capture, or tap/hold/swipe recognition. The last UI status was a native-click cancellation, so finger display is specifically separated from gesture recognition. The 2026-09-08 OS/build metadata has not been remeasured during this operator report.
+
+A separate three-finger hold definition was prepared in the local profile (release after 0.6–2 seconds; movement at most 0.06; no modifiers/scope restriction; preview only). The original tap definition was preserved. Next requested sample: explicit Record 3s, lightly hold three fingers for about 1 second without clicking, release, and open Export sample before the 30-second preview expires. The agent handles the save panel and replay analysis after the operator performs physical contact. No sample has yet been captured/exported for this confirmation.
