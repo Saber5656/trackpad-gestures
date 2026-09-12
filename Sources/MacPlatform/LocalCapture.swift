@@ -5,7 +5,10 @@ public struct ObservedContact: Codable {
     public let x: Double
     public let y: Double
     public let phase: String
-    public init(id: String, x: Double, y: Double, phase: String) { self.id = id; self.x = x; self.y = y; self.phase = phase }
+    public let isResting: Bool?
+    public init(id: String, x: Double, y: Double, phase: String, isResting: Bool? = nil) {
+        self.id = id; self.x = x; self.y = y; self.phase = phase; self.isResting = isResting
+    }
 }
 public struct TouchObservation: Codable {
     public let timestamp: Double
@@ -98,19 +101,24 @@ public final class TouchCaptureView: NSView, CaptureAdapter {
     public var onNativeGesture: ((String) -> Void)?
     public var onCaptureFailure: (() -> Void)?
     private var identityMap=ContactIdentityMap()
+    private weak var lastTouchEvent: NSEvent?
     private var sessionID = UUID().uuidString
     private var active = false
     public override init(frame: NSRect) {
         super.init(frame: frame)
         allowedTouchTypes = [.indirect]
-        wantsRestingTouches = false
+        // Preserve stationary holds across the driver's resting-state transitions.
+        wantsRestingTouches = true
     }
     public required init?(coder: NSCoder) { fatalError("init(coder:) is unavailable") }
     public func start() { stop(); active = true; sessionID = UUID().uuidString }
-    public func stop() { active = false; identityMap.clear() }
+    public func stop() { active = false; identityMap.clear(); lastTouchEvent = nil }
     private func fail() { stop(); onCaptureFailure?() }
     private func observe(_ event: NSEvent) {
-        guard active else { return }
+        // AppKit may deliver the same event to multiple phase callbacks. Normalize its
+        // full touch set once, before retiring ended IDs; timestamps alone are not identities.
+        guard active, lastTouchEvent !== event else { return }
+        lastTouchEvent = event
         let touches = event.touches(matching: .any, in: self)
         guard touches.count <= 10 else { fail(); return }
         var contacts: [ObservedContact] = []
@@ -124,7 +132,7 @@ public final class TouchCaptureView: NSView, CaptureAdapter {
             case .ended: phase = "ended"
             default: phase = "cancelled"
             }
-            contacts.append(.init(id: contactID, x: touch.normalizedPosition.x, y: touch.normalizedPosition.y, phase: phase))
+            contacts.append(.init(id: contactID, x: touch.normalizedPosition.x, y: touch.normalizedPosition.y, phase: phase, isResting: touch.isResting))
         }
         let flags: [(NSEvent.ModifierFlags, String)] = [(.command,"command"), (.control,"control"), (.option,"option"), (.shift,"shift")]
         onObservation?(.init(timestamp: event.timestamp, sessionID: sessionID, contacts: contacts.sorted { $0.id < $1.id },

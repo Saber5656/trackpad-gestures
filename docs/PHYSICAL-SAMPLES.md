@@ -25,6 +25,8 @@
 
 The 61 ms interval is the interval between observed AppKit contact phases, not a measurement of how long the user held three fingers. The saved observations contain no `isResting` state or other physical-release timing, so they cannot establish a short tap, a completed hold, or the cause of the terminal phase. In particular, the `c4` record is evidence of a same-time re-notification with a changed identity in the saved stream; the Core replay rejects the ordering before it evaluates contact identity. The separate capture-adapter investigation covers object-identity deduplication for repeated callbacks.
 
+This is a core-only replay: the GUI adapter normally calls `confirmEmptyBoundary()` after an all-terminal observation, which this direct `process` replay does not inject. Therefore its later waiting statuses are not a recording of the live GUI state. Native-interference context is also absent from the sample.
+
 This fixture records existing behavior and evidence only. Its test is outside TDD because it adds no recognition behavior: it fixes the exact raw-derived phases, relative timestamps, coordinates and resulting `status/events` for later diagnosis. The sample confirms that contact phases were observed and that this replay produced no action; it does not certify physical hold recognition, release duration, or native coexistence.
 
 検証コマンド:

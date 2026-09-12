@@ -12,7 +12,7 @@ Coordinates start lower-left. Edge zones occupy the outer 20%, corners are inter
 
 All eligible candidates survive until release. Winner ordering is application-specific scope, effective capability count, priority descending, stable ID ascending. At most one event is emitted. Cooldown is measured from last completion to next start, per gesture in the current device session. The conflict UI calls the same precedence helper and conservatively identifies overlapping time, zone, modifiers, scope and trigger domains; it does not promise both candidates match every physical input.
 
-Live capture is experimental and expires after 30s. The optional sample export is a separate envelope with source=`appkit-local-unverified`, unknown transport and at most 180 samples over 3s. It contains actual local touch fields only, without app/document/serial identifiers. A fixture must retain that provenance if converted for replay. Repository replay fixtures are explicitly synthetic.
+Live capture is experimental and expires after 30s. The optional sample export is a separate envelope with source=`appkit-local-unverified`, unknown transport and at most 180 samples over 3s. It contains actual local touch fields only, without app/document/serial identifiers. A fixture must retain that provenance if converted for replay. Repository replay fixtures label synthetic versus sanitized physical provenance explicitly.
 
 
 ## Experimental local touch samples (separate from profiles)
@@ -22,3 +22,9 @@ Sample export schema v2 retains the observed contacts, source `appkit-local-unve
 The Record 3s button arms a maximum 10-second wait without storing touch frames. A fresh, nonempty all-began frame starts the actual 3-second / 180-frame window. Existing stationary contacts do not begin recording; lift fingers first. Export freezes the sample. Reasons distinguish duration limit, count limit, waiting timeout, explicit export and invalid timestamp. Preview cancellation still clears the bounded buffer; open Export sample before the 30-second preview ends. This change does not enable gesture actions or establish global capture.
 
 Older schema-v1 samples lack these window diagnostics and can still be inspected as historical evidence; sample files are not portable gesture profiles and must not be imported as profiles. Native-interference and full lifecycle context are not encoded in these samples, so replay success alone would not certify native coexistence.
+
+## Local event delivery and resting contacts
+
+The local adapter processes a given AppKit event object once even if multiple phase callbacks receive it. Distinct event objects with equal timestamps are still delivered to the strict core, which can reject timestamp disorder; timestamps and coordinates are never rewritten to make a sequence pass. The last-event reference is weak and cleared on stop/restart.
+
+The experimental view now requests resting touches through public `wantsRestingTouches`. Each observed contact carries optional `isResting` copied from `NSTouch.isResting`; historical/mocked observations without the field keep it absent. Core contacts keep their existing semantics and do not infer missing flags. Including resting touches helps inspect stationary holds, but the revised physical stream and false triggers need validation before actions can be armed. Older samples collected with resting touches excluded may contain began/ended transitions caused by OS resting classification, so those phases alone do not prove physical placement/lift.
