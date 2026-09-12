@@ -13,6 +13,20 @@
 
 このfixtureの期待値は、観測した保存データを既存Coreへ入力した結果を固定するものです。新しい認識挙動を追加したものではないため、今回のテストはTDDの対象外としました。保存が成功し3点入力が含まれていても、2フレームで記録窓が終わった理由やOSからterminal phaseが届かなかった理由は、この保存データだけでは確定できません。したがって、この結果を完全な物理holdの認識、記録窓終了原因、またはOSイベント欠落原因の証拠として扱いません。
 
+## physical-second-sample
+
+- fixture: [`Tests/TrackpadCoreTests/Fixtures/physical-second-sample.json`](../Tests/TrackpadCoreTests/Fixtures/physical-second-sample.json)
+- provenance: `physical; AppKit local sample sanitized for replay`
+- sourceSHA-256: `e9fbbfb738cbf6d74383b5c3963479b6ed016efbb7aad615bb3052d4ce8de8c5`
+- source shape: 43 frames, one session, five source contact IDs mapped one-to-one to anonymous `c1`〜`c5`; pressure/area unavailable; coordinates and phases are retained
+- first contact sequence: frame 0〜5 spans exactly `0.06098020798526704` seconds (about 61 ms); frame 3 reports `c2/ended`, and frame 4 repeats the same timestamp with the same terminal coordinates under a new anonymous ID `c4/ended`; no frame was inserted or corrected
+- later sequence: frame 6 begins a separate one-contact `c5` sequence about 1.156 seconds after frame 0, but replay is already waiting for an empty boundary after the malformed frame
+- observed Core result: frame 0〜3 return `tracking`; frame 4 returns `malformed` because its timestamp is not greater than the preceding frame; frames 5〜42 return `waitingForBoundary`; no gesture event is emitted
+
+The 61 ms interval is the interval between observed AppKit contact phases, not a measurement of how long the user held three fingers. The saved observations contain no `isResting` state or other physical-release timing, so they cannot establish a short tap, a completed hold, or the cause of the terminal phase. In particular, the `c4` record is evidence of a same-time re-notification with a changed identity in the saved stream; the Core replay rejects the ordering before it evaluates contact identity. The separate capture-adapter investigation covers object-identity deduplication for repeated callbacks.
+
+This fixture records existing behavior and evidence only. Its test is outside TDD because it adds no recognition behavior: it fixes the exact raw-derived phases, relative timestamps, coordinates and resulting `status/events` for later diagnosis. The sample confirms that contact phases were observed and that this replay produced no action; it does not certify physical hold recognition, release duration, or native coexistence.
+
 検証コマンド:
 
 ```text

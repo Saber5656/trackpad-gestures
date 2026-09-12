@@ -1,0 +1,957 @@
+{
+  "provenance": "physical; AppKit local sample sanitized for replay",
+  "sourceSHA": "e9fbbfb738cbf6d74383b5c3963479b6ed016efbb7aad615bb3052d4ce8de8c5",
+  "definitions": [
+    {
+      "id": "hold",
+      "name": "Physical Hold",
+      "kind": "hold",
+      "fingerCount": 3,
+      "zone": "any",
+      "movementThreshold": 0.06,
+      "minDuration": 0.6,
+      "maxDuration": 2,
+      "modifiers": [],
+      "priority": 0,
+      "cooldown": 0.5,
+      "actionID": "beep",
+      "requiredCapabilities": [],
+      "enabled": true
+    },
+    {
+      "id": "tap",
+      "name": "Physical Tap",
+      "kind": "tap",
+      "fingerCount": 3,
+      "zone": "any",
+      "movementThreshold": 0.06,
+      "minDuration": 0,
+      "maxDuration": 0.35,
+      "modifiers": [],
+      "priority": 0,
+      "cooldown": 0.5,
+      "actionID": "beep",
+      "requiredCapabilities": [],
+      "enabled": true
+    }
+  ],
+  "frames": [
+    {
+      "timestamp": 0.0,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c1",
+          "x": 0.648834228515625,
+          "y": 0.813079833984375,
+          "phase": "began"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 0.016006833058781922,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c1",
+          "x": 0.648834228515625,
+          "y": 0.813079833984375,
+          "phase": "stationary"
+        },
+        {
+          "id": "c2",
+          "x": 0.5507354736328125,
+          "y": 0.735992431640625,
+          "phase": "began"
+        },
+        {
+          "id": "c3",
+          "x": 0.4794921875,
+          "y": 0.5507965087890625,
+          "phase": "began"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 0.03201608301606029,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c1",
+          "x": 0.648834228515625,
+          "y": 0.813079833984375,
+          "phase": "stationary"
+        },
+        {
+          "id": "c2",
+          "x": 0.5450286865234375,
+          "y": 0.730255126953125,
+          "phase": "moved"
+        },
+        {
+          "id": "c3",
+          "x": 0.4794921875,
+          "y": 0.5507965087890625,
+          "phase": "stationary"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 0.0459993330296129,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c1",
+          "x": 0.648834228515625,
+          "y": 0.813079833984375,
+          "phase": "stationary"
+        },
+        {
+          "id": "c2",
+          "x": 0.544219970703125,
+          "y": 0.730255126953125,
+          "phase": "ended"
+        },
+        {
+          "id": "c3",
+          "x": 0.4786834716796875,
+          "y": 0.53985595703125,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 0.0459993330296129,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c4",
+          "x": 0.544219970703125,
+          "y": 0.730255126953125,
+          "phase": "ended"
+        },
+        {
+          "id": "c1",
+          "x": 0.648834228515625,
+          "y": 0.813079833984375,
+          "phase": "stationary"
+        },
+        {
+          "id": "c3",
+          "x": 0.4786834716796875,
+          "y": 0.53985595703125,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 0.06098020798526704,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c1",
+          "x": 0.648834228515625,
+          "y": 0.813079833984375,
+          "phase": "ended"
+        },
+        {
+          "id": "c3",
+          "x": 0.4786834716796875,
+          "y": 0.5387115478515625,
+          "phase": "ended"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.156007583020255,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.5389251708984375,
+          "y": 0.6635284423828125,
+          "phase": "began"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.2020421250490472,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.535675048828125,
+          "y": 0.654327392578125,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.2170171670150012,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.535675048828125,
+          "y": 0.6474151611328125,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.232427250011824,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.5352630615234375,
+          "y": 0.639373779296875,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.2470347080379725,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.534454345703125,
+          "y": 0.6284332275390625,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.262040707981214,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.5340423583984375,
+          "y": 0.616943359375,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.2770333749940619,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.53363037109375,
+          "y": 0.6060028076171875,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.2930593750206754,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.5328216552734375,
+          "y": 0.5956573486328125,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.3080323330359533,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.53240966796875,
+          "y": 0.5841522216796875,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.323025833000429,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.5316009521484375,
+          "y": 0.5760955810546875,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.3380753749515861,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.53118896484375,
+          "y": 0.5686187744140625,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.353029957972467,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.530792236328125,
+          "y": 0.563446044921875,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.3690341670298949,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.5303802490234375,
+          "y": 0.55999755859375,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.3840324999764562,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.5303802490234375,
+          "y": 0.5582733154296875,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.3990361250471324,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.5303802490234375,
+          "y": 0.5571136474609375,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.4140622080303729,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.5303802490234375,
+          "y": 0.556549072265625,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.4299830000381917,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.529571533203125,
+          "y": 0.555389404296875,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.4900379580212757,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.529571533203125,
+          "y": 0.556549072265625,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.5060335419839248,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.529571533203125,
+          "y": 0.559417724609375,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.5210298330057412,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.529571533203125,
+          "y": 0.5628662109375,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.536023166961968,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.52874755859375,
+          "y": 0.5680389404296875,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.5510339579777792,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.52874755859375,
+          "y": 0.57379150390625,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.5660289169754833,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.528350830078125,
+          "y": 0.5801239013671875,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.58218529203441,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.5279388427734375,
+          "y": 0.58587646484375,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.5970623750472441,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.5279388427734375,
+          "y": 0.590484619140625,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.6120479579549283,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.52752685546875,
+          "y": 0.5944976806640625,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.6270405419636518,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.52752685546875,
+          "y": 0.597381591796875,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.6420378750190139,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.52752685546875,
+          "y": 0.5996856689453125,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.6580265830270946,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.52752685546875,
+          "y": 0.60198974609375,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.6730432079639286,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.52752685546875,
+          "y": 0.6037139892578125,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.6880164169706404,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.52752685546875,
+          "y": 0.605438232421875,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.7030226669739932,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.52752685546875,
+          "y": 0.6071624755859375,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.7180411249864846,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.52752685546875,
+          "y": 0.60888671875,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.7340235420269892,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.52752685546875,
+          "y": 0.6100311279296875,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.749036957975477,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.52752685546875,
+          "y": 0.6111907958984375,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.764039917034097,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.52752685546875,
+          "y": 0.61175537109375,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 1.7790116249816492,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c5",
+          "x": 0.525909423828125,
+          "y": 0.6129150390625,
+          "phase": "ended"
+        }
+      ],
+      "modifiers": []
+    }
+  ],
+  "expectedStatuses": [
+    "tracking",
+    "tracking",
+    "tracking",
+    "tracking",
+    "malformed",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary",
+    "waitingForBoundary"
+  ],
+  "expectedIDs": []
+}

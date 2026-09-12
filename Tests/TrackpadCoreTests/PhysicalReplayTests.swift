@@ -45,4 +45,41 @@ struct PhysicalReplayTests {
         #expect(outputs.last?.status == .tracking)
         #expect(outputs.flatMap(\.events).isEmpty)
     }
+
+    @Test func secondPhysicalSamplePreservesContactPhasesAndReplayOutcome() throws {
+        let url = try #require(Bundle.module.url(forResource: "physical-second-sample", withExtension: "json", subdirectory: "Fixtures"))
+        let fixture = try JSONDecoder().decode(Fixture.self, from: Data(contentsOf: url))
+
+        #expect(fixture.provenance == "physical; AppKit local sample sanitized for replay")
+        #expect(fixture.sourceSHA == "e9fbbfb738cbf6d74383b5c3963479b6ed016efbb7aad615bb3052d4ce8de8c5")
+        #expect(fixture.frames.count == 43)
+        #expect(Set(fixture.frames.flatMap { $0.contacts }.map(\.id)) == ["c1", "c2", "c3", "c4", "c5"])
+        #expect(fixture.frames.allSatisfy { $0.sessionID == "session1" && $0.transport == .unknown })
+        #expect(fixture.frames.allSatisfy { $0.capabilities == CapabilityRegistry.contactRecognition })
+
+        // The first contact sequence spans 60.980208 ms. The two same-time frames
+        // retain the suspected duplicate terminal notification and its new ID.
+        #expect(fixture.frames[5].timestamp - fixture.frames[0].timestamp == 0.06098020798526704)
+        #expect(fixture.frames[3].timestamp == fixture.frames[4].timestamp)
+        #expect(fixture.frames[3].contacts[1].id == "c2")
+        #expect(fixture.frames[3].contacts[1].phase == .ended)
+        #expect(fixture.frames[4].contacts[0].id == "c4")
+        #expect(fixture.frames[4].contacts[0].phase == .ended)
+        #expect(fixture.frames[4].contacts[0].x == 0.544219970703125)
+        #expect(fixture.frames[4].contacts[0].y == 0.730255126953125)
+        #expect(fixture.frames[5].contacts.map(\.phase) == [.ended, .ended])
+        #expect(fixture.frames[42].contacts.count == 1)
+        #expect(fixture.frames[42].contacts[0].phase == .ended)
+
+        let engine = GestureEngine(definitions: fixture.definitions)
+        let outputs = fixture.frames.map { engine.process($0) }
+        print("physical-second-sample statuses=\(outputs.map { $0.status.rawValue }); events=\(outputs.flatMap(\.events).map { $0.gestureID })")
+        #expect(outputs.map(\.status.rawValue) == fixture.expectedStatuses)
+        #expect(outputs.flatMap(\.events).map(\.gestureID) == fixture.expectedIDs)
+        #expect(outputs.flatMap(\.events).isEmpty)
+        #expect(outputs[3].status == .tracking)
+        #expect(outputs[4].status == .malformed)
+        #expect(outputs[5].status == .waitingForBoundary)
+        #expect(outputs[42].status == .waitingForBoundary)
+    }
 }
