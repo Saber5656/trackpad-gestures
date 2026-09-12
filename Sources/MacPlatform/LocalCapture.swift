@@ -16,20 +16,75 @@ public struct TouchObservation: Codable {
         self.timestamp = timestamp; self.sessionID = sessionID; self.contacts = contacts; self.modifiers = modifiers
     }
 }
+public enum SampleFinishReason: String, Codable {
+    case durationLimit, sampleLimit, waitingTimeout, exported, invalidTimestamp
+}
+public struct SampleRecordingMetadata: Codable {
+    public let armedAt: Double?
+    public let captureStartedAt: Double?
+    public let captureDeadline: Double?
+    public let finishedAt: Double?
+    public let finishReason: SampleFinishReason?
+    public let sampleCount: Int
+}
 public struct SampleRecorder {
     public private(set) var samples: [TouchObservation] = []
     public private(set) var recording = false
-    private var startTime = 0.0
+    public private(set) var waitingForContact = false
+    public var active: Bool { recording || waitingForContact }
+    private var armedAt: Double?
+    private var startTime: Double?
+    private var finishedAt: Double?
+    private var finishReason: SampleFinishReason?
+    public var metadata: SampleRecordingMetadata {
+        .init(armedAt: armedAt, captureStartedAt: startTime, captureDeadline: startTime.map { $0 + 3 },
+              finishedAt: finishedAt, finishReason: finishReason, sampleCount: samples.count)
+    }
     public init() {}
-    public mutating func start(at time: Double) { clear(); startTime = time; recording = true }
-    public mutating func clear() { samples.removeAll(keepingCapacity: false); recording = false }
-    public mutating func expire(at time: Double) { if time > startTime + 3 { recording=false } }
+    // Immediate recording is retained for callers with an already synchronized start.
+    public mutating func start(at time: Double) {
+        clear(); guard time.isFinite else { return }
+        armedAt = time; startTime = time; recording = true
+    }
+    // UI callers have up to ten seconds to return the pointer and begin a fresh touch.
+    // Only the following three seconds can be retained, still capped at 180 samples.
+    public mutating func arm(at time: Double) {
+        clear(); guard time.isFinite else { return }
+        armedAt = time; waitingForContact = true
+    }
+    public mutating func clear() {
+        samples.removeAll(keepingCapacity: false); recording = false; waitingForContact = false
+        armedAt = nil; startTime = nil; finishedAt = nil; finishReason = nil
+    }
+    private mutating func finish(_ reason: SampleFinishReason, at time: Double) {
+        recording = false; waitingForContact = false; finishReason = reason
+        finishedAt = time.isFinite ? time : nil
+    }
+    public mutating func expire(at time: Double) {
+        guard active else { return }
+        guard time.isFinite else { finish(.invalidTimestamp, at: time); return }
+        if waitingForContact, let armedAt, time > armedAt + 10 { finish(.waitingTimeout, at: time) }
+        if recording, let startTime, time > startTime + 3 { finish(.durationLimit, at: time) }
+    }
+    public mutating func finishForExport(at time: Double) {
+        expire(at: time)
+        if active { finish(.exported, at: time) }
+    }
     public mutating func append(_ sample: TouchObservation) {
-        guard recording else { return }
-        guard sample.timestamp.isFinite, sample.timestamp >= startTime, sample.timestamp <= startTime + 3 else { recording = false; return }
-        guard sample.contacts.count <= 10 else { return }
-        guard samples.count < 180 else { recording = false; return }
+        guard active else { return }
+        guard sample.timestamp.isFinite, let armedAt, sample.timestamp >= armedAt else {
+            finish(.invalidTimestamp, at: sample.timestamp); return
+        }
+        expire(at: sample.timestamp)
+        guard active, sample.contacts.count <= 10 else { return }
+        if waitingForContact {
+            guard !sample.contacts.isEmpty, sample.contacts.allSatisfy({ $0.phase == "began" }) else { return }
+            startTime = sample.timestamp; waitingForContact = false; recording = true
+        }
+        guard recording, let startTime, sample.timestamp >= startTime else { return }
+        guard samples.count < 180 else { finish(.sampleLimit, at: sample.timestamp); return }
         samples.append(sample)
+        if samples.count == 180 { finish(.sampleLimit, at: sample.timestamp) }
     }
 }
 public protocol CaptureAdapter: AnyObject {

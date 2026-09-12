@@ -160,7 +160,11 @@ final class AppModel: ObservableObject {
         }
         if live && ProcessInfo.processInfo.systemUptime >= expiry { lifecycle.handle(.captureExpired); status="30-second preview finished. No raw stream was saved." }
         recorder.expire(at:ProcessInfo.processInfo.systemUptime)
-        if isRecording && !recorder.recording { isRecording=false }
+        if isRecording && !recorder.active {
+            isRecording=false
+            if recorder.samples.isEmpty { status="No fresh contact within 10 seconds. Press Record 3s to try again." }
+            else { status += " Sample ready; export before the preview ends." }
+        }
     }
     func selectProfile(_ index:Int) {
         guard document.profiles.indices.contains(index) else { return }
@@ -239,18 +243,34 @@ final class AppModel: ObservableObject {
         status="Place the pointer over the pad, then use the trackpad. View-local capture only; physical transport unknown."
     }
     func recordSample() {
-        guard live else { return }; recorder.start(at:ProcessInfo.processInfo.systemUptime); isRecording=true; sampleCount=0
-        status="Recording up to 3 seconds / 180 samples in memory. Export is explicit."
+        guard live else { return }; recorder.arm(at:ProcessInfo.processInfo.systemUptime); isRecording=true; sampleCount=0
+        status="Ready: return the pointer to the pad and lift your fingers. Recording starts on the next fresh touch (within 10 seconds), for up to 3 seconds."
+    }
+    func sampleDataForExport(at time: Double = ProcessInfo.processInfo.systemUptime) throws -> Data {
+        guard !recorder.samples.isEmpty else { throw ActionFailure.invalid }
+        recorder.finishForExport(at: time); isRecording=false
+        struct SampleFile: Encodable {
+            let schemaVersion=2
+            let source="appkit-local-unverified"
+            let transport="unknown"
+            let pressureAvailable=false
+            let areaAvailable=false
+            let recording: SampleRecordingMetadata
+            let samples: [TouchObservation]
+        }
+        let encoder=JSONEncoder(); encoder.outputFormatting=[.prettyPrinted,.sortedKeys]
+        return try encoder.encode(SampleFile(recording:recorder.metadata,samples:recorder.samples))
     }
     func exportSample() {
         guard !recorder.samples.isEmpty else { status="No observed contact samples to export."; return }
-        struct SampleFile:Encodable { let schemaVersion=1; let source="appkit-local-unverified"; let transport="unknown"; let pressureAvailable=false; let areaAvailable=false; let samples:[TouchObservation] }
-        do { let encoder=JSONEncoder(); encoder.outputFormatting=[.prettyPrinted,.sortedKeys]; try saveData(encoder.encode(SampleFile(samples:recorder.samples)),name:"local-touch-sample.json") }
+        do { try saveData(sampleDataForExport(),name:"local-touch-sample.json") }
         catch { status="Sample export failed." }
     }
     func acceptObservation(_ observation:TouchObservation) {
         guard live else { return }
-        recorder.append(observation); sampleCount=recorder.samples.count; isRecording=recorder.recording
+        let wasWaiting=recorder.waitingForContact
+        recorder.append(observation); sampleCount=recorder.samples.count; isRecording=recorder.active
+        if wasWaiting && recorder.recording { status="Recording up to 3 seconds / 180 samples from first contact. Lift fingers to finish the gesture." }
         let frame=NormalizedFrame(timestamp:observation.timestamp,sessionID:observation.sessionID,transport:.unknown,
                                   capabilities:[.multiTouch,.contactIdentity,.normalizedCoordinates],contacts:observation.contacts.compactMap { c in
             guard let phase=ContactPhase(rawValue:c.phase) else { return nil }; return Contact(id:c.id,x:c.x,y:c.y,phase:phase)

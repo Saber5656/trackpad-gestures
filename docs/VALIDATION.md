@@ -55,3 +55,12 @@ Raw logs remain in private development context. Reproduction: `scripts/test.sh`;
 - **Confirmed by operator:** three fingers displayed as three local contact points. Agent subsequently confirmed the app's USB metadata and Local preview selection; active contact screenshot/fixture is not available.
 - **Still pending:** recognition of a complete physical tap/hold/swipe, timestamp/identity/coordinate corpus checks, background/other-app capture and native coexistence. A native-click cancellation message was visible, which must not be presented as successful hold recognition.
 - A preview-only hold definition was prepared using the existing GUI; no source behavior changed. Documentation was self-reviewed for scope/provenance, local link validity and privacy. Prior 50-test/12-suite and build results are reused for unchanged code rather than rerun as supposed new hardware evidence.
+
+
+## First saved sample and recorder repair — 2026-09-12
+
+- The saved physical sample was found and parsed (1,221 bytes). It contains two start-phase frames and three distinct contacts, with no release. Independent replay returns `tracking` twice and emits zero gesture events. See [physical sample records](PHYSICAL-SAMPLES.md); this is an incomplete physical fixture, not successful hold recognition.
+- TDD reproduced button-relative recording dropping a gesture that begins five seconds after pressing Record. The new bounded arming path preserves both began and ended frames for that case, rejects mid-sequence start, times out without contact after ten seconds, caps actual capture at three seconds/180 frames, and freezes export with schema-v2 timing metadata.
+- Final `scripts/test.sh`: **56 tests / 15 suites passed**. Fresh source copy with no `.env`, `.build`, Git metadata or profiles, and a minimal process environment, also passed all **56**. This is isolation on the same Mac, not another physical machine.
+- Release packaging succeeded and the packaging regression passed (1 Python test). The app was normally quit/restarted; existing tap/hold definitions restored; the new waiting-for-first-contact status was visibly confirmed. The preview was then stopped, leaving the hold definition and Local preview selected.
+- No physical sample from the repaired recorder has been obtained yet. Its benefit is established by automated timing regression and UI state, not by claiming a second physical run.

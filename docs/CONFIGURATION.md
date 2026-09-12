@@ -13,3 +13,12 @@ Coordinates start lower-left. Edge zones occupy the outer 20%, corners are inter
 All eligible candidates survive until release. Winner ordering is application-specific scope, effective capability count, priority descending, stable ID ascending. At most one event is emitted. Cooldown is measured from last completion to next start, per gesture in the current device session. The conflict UI calls the same precedence helper and conservatively identifies overlapping time, zone, modifiers, scope and trigger domains; it does not promise both candidates match every physical input.
 
 Live capture is experimental and expires after 30s. The optional sample export is a separate envelope with source=`appkit-local-unverified`, unknown transport and at most 180 samples over 3s. It contains actual local touch fields only, without app/document/serial identifiers. A fixture must retain that provenance if converted for replay. Repository replay fixtures are explicitly synthetic.
+
+
+## Experimental local touch samples (separate from profiles)
+
+Sample export schema v2 retains the observed contacts, source `appkit-local-unverified`, unknown transport and unavailable pressure/area. It adds `recording` metadata: optional `armedAt`, `captureStartedAt`, `captureDeadline`, `finishedAt`, `finishReason`, plus `sampleCount`. These are monotonic timestamps from this capture session; `finishedAt` is when stopping was observed, while `captureDeadline` bounds accepted event timestamps. Missing times remain absent, never zero.
+
+The Record 3s button arms a maximum 10-second wait without storing touch frames. A fresh, nonempty all-began frame starts the actual 3-second / 180-frame window. Existing stationary contacts do not begin recording; lift fingers first. Export freezes the sample. Reasons distinguish duration limit, count limit, waiting timeout, explicit export and invalid timestamp. Preview cancellation still clears the bounded buffer; open Export sample before the 30-second preview ends. This change does not enable gesture actions or establish global capture.
+
+Older schema-v1 samples lack these window diagnostics and can still be inspected as historical evidence; sample files are not portable gesture profiles and must not be imported as profiles. Native-interference and full lifecycle context are not encoded in these samples, so replay success alone would not certify native coexistence.

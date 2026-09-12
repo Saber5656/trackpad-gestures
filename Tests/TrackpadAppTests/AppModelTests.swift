@@ -54,3 +54,28 @@ import TrackpadCore
         #expect(model.contacts.isEmpty)
     }
 }
+
+@MainActor struct SampleRecordingAppTests {
+    @Test func recordButtonWaitsForContactAfterPointerRepositioning() throws {
+        let dir=FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at:dir) }
+        let model=AppModel(storage:dir.appendingPathComponent("profile.json")); defer { model.shutdown() }
+        model.startLocal(); model.recordSample()
+        let start=ProcessInfo.processInfo.systemUptime + 5
+        for (offset,phase) in [(0.0,"began"),(1.0,"ended")] {
+            model.acceptObservation(.init(timestamp:start+offset,sessionID:"record-test",contacts:(0..<3).map {
+                .init(id:"c\($0)",x:0.3+Double($0)*0.1,y:0.5,phase:phase)
+            },modifiers:[]))
+        }
+        #expect(model.sampleCount == 2)
+        #expect(model.isRecording)
+        let data=try model.sampleDataForExport(at:start+1.1)
+        let json=try #require(JSONSerialization.jsonObject(with:data) as? [String:Any])
+        #expect(json["schemaVersion"] as? Int == 2)
+        let recording=try #require(json["recording"] as? [String:Any])
+        #expect(recording["captureStartedAt"] as? Double == start)
+        #expect(recording["finishReason"] as? String == "exported")
+        #expect((json["samples"] as? [Any])?.count == 2)
+        #expect(!model.isRecording)
+    }
+}

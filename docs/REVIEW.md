@@ -47,3 +47,10 @@ A separate Luna reviewer used `task/capture-audit` in an isolated worktree while
 Final limited independent review found no blocking safety defect and one conditional collection-limit issue. Adopted: `totalCollectionCount` and `collectionsTruncated` now expose a 16-collection cap; unavailable enumeration has absent totals. The final source was self-reviewed, rebuilt and tested after this fix.
 
 No USB global gesture pass is claimed. The Mac remained locked, so the GUI/physical input blocker is separate from the corrected probe and passing automated tests. No private protocol implementation, new privileges or distribution change was introduced.
+
+
+## Recorder timing repair review — 2026-09-12
+
+The independent worker first replayed the physical input in `task/physical-replay`, producing tracking/no-event evidence and an anonymous-ID fixture. Integration retained the exact source timestamp difference rather than the worker's display-rounded value; the fixture test passed afterward. The worker then performed one static review of the separate recorder implementation and its tests, finding no actionable defect. Its auxiliary review harness marked the response `review_incomplete` because explanatory prose accompanied the result JSON; that harness run is not represented as a completed automated review gate. The main agent read the bounded-state/export paths and relied on the actual regression, full-suite, isolated-build and GUI evidence for acceptance.
+
+The repair keeps the three-second/180-frame raw limit and 30-second preview expiry. Waiting for fresh contact stores no frames and expires after ten seconds. Sample schema v2 exposes missing/timed-out/explicitly stopped capture windows without fabricating release events. Profile schema and action execution are unchanged. The first file alone cannot distinguish window expiration from missing native terminal delivery; no unsupported causal claim or public-API/distribution change was adopted.
