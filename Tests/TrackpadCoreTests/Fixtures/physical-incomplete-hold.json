@@ -1,0 +1,95 @@
+{
+  "provenance": "physical; AppKit local sample sanitized for replay",
+  "sourceSHA": "f9a07d86abe77fdd8687447a88316e1596fdd7503d86ddba24e9209e473bb15b",
+  "definitions": [
+    {
+      "id": "hold",
+      "name": "Physical Hold",
+      "kind": "hold",
+      "fingerCount": 3,
+      "zone": "any",
+      "movementThreshold": 0.06,
+      "minDuration": 0.6,
+      "maxDuration": 2,
+      "modifiers": [],
+      "priority": 0,
+      "cooldown": 0.5,
+      "actionID": "beep",
+      "requiredCapabilities": [],
+      "enabled": true
+    },
+    {
+      "id": "tap",
+      "name": "Physical Tap",
+      "kind": "tap",
+      "fingerCount": 3,
+      "zone": "any",
+      "movementThreshold": 0.06,
+      "minDuration": 0,
+      "maxDuration": 0.35,
+      "modifiers": [],
+      "priority": 0,
+      "cooldown": 0.5,
+      "actionID": "beep",
+      "requiredCapabilities": [],
+      "enabled": true
+    }
+  ],
+  "frames": [
+    {
+      "timestamp": 0,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c1",
+          "x": 0.640289306640625,
+          "y": 0.767059326171875,
+          "phase": "began"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 0.015027249930426478,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c2",
+          "x": 0.491302490234375,
+          "y": 0.4898223876953125,
+          "phase": "began"
+        },
+        {
+          "id": "c3",
+          "x": 0.5462493896484375,
+          "y": 0.6646728515625,
+          "phase": "began"
+        },
+        {
+          "id": "c1",
+          "x": 0.640289306640625,
+          "y": 0.767059326171875,
+          "phase": "stationary"
+        }
+      ],
+      "modifiers": []
+    }
+  ],
+  "expectedStatuses": [
+    "tracking",
+    "tracking"
+  ],
+  "expectedIDs": []
+}
