@@ -244,7 +244,7 @@ final class AppModel: ObservableObject {
     }
     func recordSample() {
         guard live else { return }; recorder.arm(at:ProcessInfo.processInfo.systemUptime); isRecording=true; sampleCount=0
-        status="Ready: return the pointer to the pad and lift your fingers. Recording starts on the next fresh touch (within 10 seconds), for up to 3 seconds."
+        status="Ready: return the pointer to the pad and lift your fingers. The next fresh touch (within 10 seconds) records one gesture, up to 3 seconds. Recording freezes when all fingers end."
     }
     func sampleDataForExport(at time: Double = ProcessInfo.processInfo.systemUptime) throws -> Data {
         guard !recorder.samples.isEmpty else { throw ActionFailure.invalid }
@@ -269,6 +269,7 @@ final class AppModel: ObservableObject {
     func acceptObservation(_ observation:TouchObservation) {
         guard live else { return }
         let wasWaiting=recorder.waitingForContact
+        let wasRecording=recorder.active
         recorder.append(observation); sampleCount=recorder.samples.count; isRecording=recorder.active
         if wasWaiting && recorder.recording { status="Recording up to 3 seconds / 180 samples from first contact. Lift fingers to finish the gesture." }
         let frame=NormalizedFrame(timestamp:observation.timestamp,sessionID:observation.sessionID,transport:.unknown,
@@ -280,6 +281,19 @@ final class AppModel: ObservableObject {
             contacts=observation.contacts.filter { $0.phase != "ended" && $0.phase != "cancelled" }; lastPublish=observation.timestamp
         }
         if observation.contacts.allSatisfy({ $0.phase=="ended" || $0.phase=="cancelled" }) { engine.confirmEmptyBoundary() }
+        if wasRecording && !recorder.active {
+            let result = status.hasPrefix("Recognized in preview:") ? status + " " : ""
+            switch recorder.metadata.finishReason {
+            case .sequenceEnded:
+                status = result + "Sample frozen after all contacts ended. Move to Export sample to save; later movement is not recorded."
+            case .sequenceCancelled:
+                status = "Sample frozen after cancellation. Export for diagnosis; this is not a completed gesture."
+            case .invalidSequence:
+                status = "Sample frozen: inconsistent contact sequence. Export for diagnosis."
+            default:
+                status = result + "Recording stopped. Sample frozen; export before the preview ends."
+            }
+        }
     }
     private func process(_ frame:NormalizedFrame) {
         let start=ProcessInfo.processInfo.systemUptime

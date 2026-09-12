@@ -21,6 +21,7 @@ public struct TouchObservation: Codable {
 }
 public enum SampleFinishReason: String, Codable {
     case durationLimit, sampleLimit, waitingTimeout, exported, invalidTimestamp
+    case sequenceEnded, sequenceCancelled, invalidSequence
 }
 public struct SampleRecordingMetadata: Codable {
     public let armedAt: Double?
@@ -35,6 +36,9 @@ public struct SampleRecorder {
     public private(set) var recording = false
     public private(set) var waitingForContact = false
     public var active: Bool { recording || waitingForContact }
+    private var stopAtSequenceBoundary = false
+    private var sequenceSessionID: String?
+    private var activeContactIDs: Set<String> = []
     private var armedAt: Double?
     private var startTime: Double?
     private var finishedAt: Double?
@@ -53,15 +57,17 @@ public struct SampleRecorder {
     // Only the following three seconds can be retained, still capped at 180 samples.
     public mutating func arm(at time: Double) {
         clear(); guard time.isFinite else { return }
-        armedAt = time; waitingForContact = true
+        armedAt = time; waitingForContact = true; stopAtSequenceBoundary = true
     }
     public mutating func clear() {
         samples.removeAll(keepingCapacity: false); recording = false; waitingForContact = false
         armedAt = nil; startTime = nil; finishedAt = nil; finishReason = nil
+        stopAtSequenceBoundary = false; sequenceSessionID = nil; activeContactIDs.removeAll()
     }
     private mutating func finish(_ reason: SampleFinishReason, at time: Double) {
         recording = false; waitingForContact = false; finishReason = reason
         finishedAt = time.isFinite ? time : nil
+        activeContactIDs.removeAll(); sequenceSessionID = nil
     }
     public mutating func expire(at time: Double) {
         guard active else { return }
@@ -83,11 +89,37 @@ public struct SampleRecorder {
         if waitingForContact {
             guard !sample.contacts.isEmpty, sample.contacts.allSatisfy({ $0.phase == "began" }) else { return }
             startTime = sample.timestamp; waitingForContact = false; recording = true
+            sequenceSessionID = sample.sessionID
         }
         guard recording, let startTime, sample.timestamp >= startTime else { return }
         guard samples.count < 180 else { finish(.sampleLimit, at: sample.timestamp); return }
         samples.append(sample)
-        if samples.count == 180 { finish(.sampleLimit, at: sample.timestamp) }
+        if stopAtSequenceBoundary { observeSequenceBoundary(sample) }
+        if recording && samples.count == 180 { finish(.sampleLimit, at: sample.timestamp) }
+    }
+    private mutating func observeSequenceBoundary(_ sample: TouchObservation) {
+        guard sample.sessionID == sequenceSessionID,
+              Set(sample.contacts.map(\.id)).count == sample.contacts.count else {
+            finish(.invalidSequence, at: sample.timestamp); return
+        }
+        var cancelled = false
+        for contact in sample.contacts {
+            switch contact.phase {
+            case "began":
+                guard activeContactIDs.count < 10, activeContactIDs.insert(contact.id).inserted else {
+                    finish(.invalidSequence, at: sample.timestamp); return
+                }
+            case "moved", "stationary":
+                guard activeContactIDs.contains(contact.id) else { finish(.invalidSequence, at: sample.timestamp); return }
+            case "ended", "cancelled":
+                guard activeContactIDs.remove(contact.id) != nil else { finish(.invalidSequence, at: sample.timestamp); return }
+                cancelled = cancelled || contact.phase == "cancelled"
+            default: finish(.invalidSequence, at: sample.timestamp); return
+            }
+        }
+        // Missing contacts and empty snapshots cannot fabricate a release.
+        if cancelled { finish(.sequenceCancelled, at: sample.timestamp) }
+        else if !sample.contacts.isEmpty && activeContactIDs.isEmpty { finish(.sequenceEnded, at: sample.timestamp) }
     }
 }
 public protocol CaptureAdapter: AnyObject {

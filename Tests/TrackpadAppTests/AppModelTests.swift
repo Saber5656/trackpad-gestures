@@ -68,14 +68,46 @@ import TrackpadCore
             },modifiers:[]))
         }
         #expect(model.sampleCount == 2)
-        #expect(model.isRecording)
+        #expect(!model.isRecording)
         let data=try model.sampleDataForExport(at:start+1.1)
         let json=try #require(JSONSerialization.jsonObject(with:data) as? [String:Any])
         #expect(json["schemaVersion"] as? Int == 2)
         let recording=try #require(json["recording"] as? [String:Any])
         #expect(recording["captureStartedAt"] as? Double == start)
-        #expect(recording["finishReason"] as? String == "exported")
+        #expect(recording["finishReason"] as? String == "sequenceEnded")
         #expect((json["samples"] as? [Any])?.count == 2)
         #expect(!model.isRecording)
+    }
+}
+
+@MainActor struct FrozenSampleAppTests {
+    @Test func livePointerMovementDoesNotChangeFrozenExport() throws {
+        let dir=FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at:dir) }
+        let model=AppModel(storage:dir.appendingPathComponent("profile.json")); defer { model.shutdown() }
+        model.startLocal(); model.recordSample()
+        let start=ProcessInfo.processInfo.systemUptime+1
+        for (offset,phase) in [(0.0,"began"),(0.1,"ended")] {
+            model.acceptObservation(.init(timestamp:start+offset,sessionID:"gesture",contacts:(0..<3).map {
+                .init(id:"c\($0)",x:0.3+Double($0)*0.1,y:0.5,phase:phase)
+            },modifiers:[]))
+        }
+        #expect(!model.isRecording)
+        #expect(model.status.contains("frozen"))
+        model.acceptObservation(.init(timestamp:start+0.2,sessionID:"gesture",contacts:[
+            .init(id:"pointer",x:0.6,y:0.7,phase:"began")
+        ],modifiers:[]))
+        #expect(model.sampleCount == 2)
+        #expect(model.contacts.first?.id == "pointer") // Live visualizer remains live.
+        let first=try model.sampleDataForExport(at:start+0.3)
+        model.acceptObservation(.init(timestamp:start+0.4,sessionID:"gesture",contacts:[
+            .init(id:"pointer",x:0.8,y:0.7,phase:"ended")
+        ],modifiers:[]))
+        #expect(try model.sampleDataForExport(at:start+0.5) == first)
+        let file=try #require(JSONSerialization.jsonObject(with:first) as? [String:Any])
+        #expect((file["samples"] as? [Any])?.count == 2)
+        let meta=try #require(file["recording"] as? [String:Any])
+        #expect(meta["finishReason"] as? String == "sequenceEnded")
+        #expect(meta["finishedAt"] as? Double == start+0.1)
     }
 }

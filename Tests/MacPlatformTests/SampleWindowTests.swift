@@ -18,7 +18,7 @@ struct SampleWindowTests {
         #expect(recorder.samples.count == 2)
         #expect(recorder.metadata.captureStartedAt == 109)
         #expect(recorder.metadata.captureDeadline == 112)
-        #expect(recorder.recording)
+        #expect(!recorder.recording)
     }
     @Test func waitingIsBoundedAndDoesNotStartMidSequence() {
         var recorder = SampleRecorder(); recorder.arm(at: 10)
@@ -42,7 +42,7 @@ struct SampleWindowTests {
     }
     @Test func exportFreezesSampleAndRecordsActualWindow() throws {
         var recorder = SampleRecorder(); recorder.arm(at:10)
-        recorder.append(sample(12)); recorder.append(sample(13,phase:"ended"))
+        recorder.append(sample(12)); recorder.append(sample(13,phase:"stationary"))
         recorder.finishForExport(at:13.1)
         recorder.append(sample(13.2))
         #expect(recorder.samples.count == 2)

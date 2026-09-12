@@ -117,7 +117,7 @@ struct ContentView: View {
                     Button("Record 3s") { model.recordSample() }.disabled(!model.live)
                     Button("Export sample…") { model.exportSample() }.disabled(model.sampleCount==0)
                 }.font(.system(size:11))
-                Text("\(model.sampleCount)/180 samples · pressure and area unavailable · contacts stay in memory").font(.system(size:10)).foregroundStyle(muted)
+                Text("\(model.sampleCount)/180 samples · \(model.isRecording ? "recording" : (model.sampleCount > 0 ? "frozen" : "not recording")) · pressure and area unavailable · contacts stay in memory").font(.system(size:10)).foregroundStyle(muted)
             }
         }.padding(18).background(Color.white.opacity(0.025),in:RoundedRectangle(cornerRadius:16))
     }
