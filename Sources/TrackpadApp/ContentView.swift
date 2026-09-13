@@ -19,6 +19,7 @@ struct ContentView: View {
             ScrollView {
                 VStack(alignment:.leading,spacing:22) {
                     header
+                    InputCheckPanel(check: model.inputCheck)
                     HStack(alignment:.top,spacing:20) {
                         VStack(alignment:.leading,spacing:18) { visualizer; capabilities }.frame(minWidth:350,maxWidth:.infinity)
                         editor.frame(width:345)
@@ -182,7 +183,7 @@ struct ContentView: View {
         VStack(alignment:.leading,spacing:10) {
             Label("Permissions",systemImage:"lock.shield").font(.headline)
             Text("Input Monitoring: \(model.permissions.inputMonitoring ? "granted in this context" : "not granted")").font(.system(size:12,weight:.medium))
-            Text("Unused in this build. Global capture is unavailable. This OS permission alone cannot expose missing touch fields.").font(.system(size:11)).foregroundStyle(muted)
+            Text("Used by the optional count-only input diagnostic. Global touch capture remains unavailable; this permission alone cannot expose missing touch fields.").font(.system(size:11)).foregroundStyle(muted)
             Text("Accessibility: \(model.permissions.accessibility ? "trusted in this context" : "not trusted")").font(.system(size:12,weight:.medium))
             Text("Unused in this build. Local preview and manual handler actions do not need it; input injection remains unsupported.").font(.system(size:11)).foregroundStyle(muted)
             Button("Open Privacy settings…") { NSWorkspace.shared.open(URL(string:"x-apple.systempreferences:com.apple.preference.security")!) }.font(.system(size:11))
@@ -197,5 +198,36 @@ struct ContentView: View {
             if model.conflictMessages.isEmpty { Text("No potential overlap with other saved definitions.").font(.system(size:11)).foregroundStyle(muted) }
             Text("Native input stays active. Preview does not trigger actions.").font(.system(size:11)).foregroundStyle(accent)
         }.padding(18).frame(maxWidth:.infinity,alignment:.leading).background(Color.white.opacity(0.025),in:RoundedRectangle(cornerRadius:16))
+    }
+}
+
+private struct InputCheckPanel: View {
+    @ObservedObject var check: GlobalInputCheck
+    var body: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Label("別アプリ上の入力診断", systemImage: "waveform.path.ecg").font(.headline)
+                Spacer()
+                if check.isRunning {
+                    Text("記録中 · 残り \(check.remaining) 秒").monospacedDigit().foregroundStyle(.green)
+                    Button("診断を中止") { check.stop(reason: .cancelled) }
+                } else {
+                    Button("30秒の入力診断を開始") { check.start() }.buttonStyle(.borderedProminent)
+                }
+            }
+            Text(check.message).font(.system(size: 12)).textSelection(.enabled)
+            if let report = check.report {
+                HStack(spacing: 24) {
+                    Text("このアプリのポインター: \(report.pointerCount(channel: .local).map(String.init) ?? "未取得")")
+                    Text("別アプリのポインター: \(report.pointerCount(channel: .global).map(String.init) ?? "未取得")")
+                    Text("OS側のポインター: \(report.pointerCount(channel: .quartz).map(String.init) ?? "未取得")")
+                }.font(.system(size: 11)).monospacedDigit()
+                Text("件数は監視経路ごとの値です。3本指の認識や実機対応を示す値ではありません。")
+                    .font(.system(size: 10)).foregroundStyle(.secondary)
+            } else if !check.isRunning {
+                Text("開始ボタンを押してからFinderへ切り替えます。保存のためにアプリへ戻る必要はありません。")
+                    .font(.system(size: 11)).foregroundStyle(.secondary)
+            }
+        }.padding(16).background(Color.white.opacity(0.035), in: RoundedRectangle(cornerRadius: 12))
     }
 }

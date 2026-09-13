@@ -46,3 +46,6 @@ Independent schema/core/editor work proceeds despite missing hardware; this does
 
 
 - Manual Hide action observation: on 2026-09-13 the UI reported unavailable for Finder while a subsequent read-only process query found it hidden. Pre-call state was not recorded, so causality is unknown. When continuing M-02, distinguish already-hidden targets from failed hide transitions with a controllable backend test and OS readback; preserve any user-held state. No broad action-execution change was made during the capture-validation follow-up.
+
+- M-00 follow-up: operator confirmed Finder operations; zero CLI counts remain unexplained. The visible GUI diagnostic supplies a directly started window and frozen auto-save. Positive physical pointer receipt, correct GUI permission context and then global gesture fields remain prerequisites; do not promote support based on an idle timer or registration success.
+- M-03 performance evidence: coarse GUI process CPU around 10% / RSS around 96 MiB is not an acceptance measurement. Profile idle versus diagnostic-active CPU and sustained memory with a verified physical input control before release claims.

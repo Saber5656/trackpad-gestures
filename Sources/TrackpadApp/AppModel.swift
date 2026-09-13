@@ -97,6 +97,10 @@ final class AppModel: ObservableObject {
     @Published var previewScope=""
     @Published var diagnostics=SafeDiagnostics()
     let capture=TouchCaptureView(frame: .zero)
+    lazy var inputCheck = GlobalInputCheck(save: { [diagnosticURL] data in
+        try FileManager.default.createDirectory(at: diagnosticURL.deletingLastPathComponent(), withIntermediateDirectories: true)
+        try data.write(to: diagnosticURL, options: .atomic)
+    })
     private var recorder=SampleRecorder()
     private var engine: GestureEngine
     private let backend=WorkspaceActionBackend()
@@ -118,6 +122,7 @@ final class AppModel: ObservableObject {
         return FileManager.default.urls(for: .applicationSupportDirectory, in: .userDomainMask)[0]
             .appendingPathComponent("TrackpadGestures", isDirectory: true).appendingPathComponent("profiles.json")
     }
+    var diagnosticURL: URL { storageURL.deletingLastPathComponent().appendingPathComponent("latest-input-check.json") }
     init(storage: URL? = nil) {
         storageOverride=storage
         let defaultDraft=GestureDraft()
@@ -141,7 +146,9 @@ final class AppModel: ObservableObject {
         }
         let nc=NSWorkspace.shared.notificationCenter
         for (name,event) in [(NSWorkspace.willSleepNotification,LifecycleEvent.sleep),(NSWorkspace.didWakeNotification,LifecycleEvent.resume),(NSWorkspace.sessionDidResignActiveNotification,LifecycleEvent.lock),(NSWorkspace.sessionDidBecomeActiveNotification,LifecycleEvent.unlock)] {
-            workspaceObservers.append(nc.addObserver(forName:name,object:nil,queue:.main) { [weak self] _ in self?.lifecycle.handle(event) })
+            workspaceObservers.append(nc.addObserver(forName:name,object:nil,queue:.main) { [weak self] _ in
+                self?.lifecycle.handle(event); self?.inputCheck.stop(reason: .sleepOrLock)
+            })
         }
         workspaceObservers.append(nc.addObserver(forName:NSWorkspace.didActivateApplicationNotification,object:nil,queue:.main) { [weak self] _ in
             guard let self, self.live else { return }; self.lifecycle.handle(.appChanged)
@@ -152,11 +159,11 @@ final class AppModel: ObservableObject {
     }
     func refresh() {
         let next=PermissionSnapshot.current()
-        if next != permissions { permissions=next; lifecycle.permissionsChanged(next); diagnostics.record(.permissionChanged); status="Permissions changed. Preview cancelled; restart explicitly." }
+        if next != permissions { permissions=next; lifecycle.permissionsChanged(next); inputCheck.stop(reason: .permissionChanged); diagnostics.record(.permissionChanged); status="Permissions changed. Preview cancelled; restart explicitly." }
         tick += 1
         if tick % 5 == 0 {
             let nextDevices=DeviceDiscovery.list()
-            if nextDevices != devices { devices=nextDevices; lifecycle.handle(.disconnect); diagnostics.record(.deviceChanged); status="Device list changed. Preview cancelled." }
+            if nextDevices != devices { devices=nextDevices; lifecycle.handle(.disconnect); inputCheck.stop(reason: .deviceChanged); diagnostics.record(.deviceChanged); status="Device list changed. Preview cancelled." }
         }
         if live && ProcessInfo.processInfo.systemUptime >= expiry { lifecycle.handle(.captureExpired); status="30-second preview finished. No raw stream was saved." }
         recorder.expire(at:ProcessInfo.processInfo.systemUptime)
@@ -184,7 +191,7 @@ final class AppModel: ObservableObject {
         diagnostics.record(.cancelled)
     }
     func shutdown() {
-        cancelPreview(); timer?.invalidate(); timer=nil
+        cancelPreview(); inputCheck.stop(reason: .appExit); timer?.invalidate(); timer=nil
         observers.forEach { NotificationCenter.default.removeObserver($0) }; observers=[]
         workspaceObservers.forEach { NSWorkspace.shared.notificationCenter.removeObserver($0) }; workspaceObservers=[]
     }

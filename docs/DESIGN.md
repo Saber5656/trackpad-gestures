@@ -4,6 +4,20 @@
 
 A local-only, gesture-first editor with portable versioned data, explainable winner selection, capability visibility, opt-in preview and threshold/cooldown controls. Formal global USB gesture support is pending M-00. This local build offers simulation and experimental view-local capture with manual safe-action testing. No telemetry, remote backend, plug-in loader, embedded execution language or arbitrary shell facility exists.
 
+### Bounded input diagnostic (2026-09-13)
+
+The CLI's externally started capture window was not visible to the operator. Add
+one compact card above the existing native studio, reusing its visual style. A
+user-started 30-second countdown and automatic count-only save remove the need to
+coordinate a CLI start or move to an export button. A separate diagnostic window
+was considered but adds focus ambiguity; the existing app's normal event loop is
+the intended control. This is an addition to the native macOS diagnostic workflow,
+not a Web/mobile design task under the current product-design policy.
+
+Diagnostics do not feed the gesture engine or Action Executor. No live touch
+capability is promoted. The single latest report is independent of profiles and
+raw sample exports; its new check ID prevents confusing successive reports.
+
 ## Boundaries
 
 - `TrackpadCore`: immutable normalized frames, strict config codec, state machine and deterministic conflict analysis. Foundation only. No OS event APIs.

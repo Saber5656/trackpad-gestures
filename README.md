@@ -45,3 +45,9 @@ Future: complete unlocked USB-C reference input verification, choose a global ca
 No OSS license is implied. Publication, license selection, Developer ID signing and notarization require a separate decision. The package script does not invoke signing/notarization; Apple Silicon linker-generated local ad-hoc signatures are not Developer ID signatures.
 
 Optional `.env` roots support private development records only; builds require no personal absolute paths, keys or accounts. See `.env.example`.
+
+### Input-delivery diagnostic
+
+Use **30秒の入力診断を開始** in the studio to begin a bounded, count-only check. Move the pointer over the studio and then Finder during the visible 30-second window. It automatically saves `latest-input-check.json` beside `profiles.json` in the app’s Application Support directory. No Export operation is needed. Missing monitoring routes display **未取得**. Counts do not certify global touch/finger recognition; see [diagnostic procedure and limits](docs/PUBLIC-INPUT-AUDIT.md).
+
+Input Monitoring is required for this build's optional CG listen-only route; the GUI and CLI can have different grants. The app makes no automatic permission request. If needed, the operator can add the locally built app to macOS **System Settings → Privacy & Security → Input Monitoring**, then restart it. Accessibility and keyboard injection remain unused. Do not change grants merely to run synthetic tests.
