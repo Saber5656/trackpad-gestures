@@ -43,3 +43,6 @@ Independent schema/core/editor work proceeds despite missing hardware; this does
 - Packaging backup discoverability: retained `previous.app` bundles share the app identifier and made bundle-ID lookup ambiguous on 2026-09-12. Selecting the explicit current `dist/TrackpadGestures.app` path resolved this run. Future packaging work should retain rollback evidence in a form that is not another discoverable application; do not delete old generated output merely to fix lookup. This is registered only, with no packaging change in the physical-contact confirmation task.
 
 - Preview-expiry message after export: the UI can say “No raw stream was saved” after an explicit sample export has succeeded. The 2026-09-13 file was independently verified on disk. A future wording fix should distinguish no automatic logging from a successfully exported sample; this confirmation task only records the finding.
+
+
+- Manual Hide action observation: on 2026-09-13 the UI reported unavailable for Finder while a subsequent read-only process query found it hidden. Pre-call state was not recorded, so causality is unknown. When continuing M-02, distinguish already-hidden targets from failed hide transitions with a controllable backend test and OS readback; preserve any user-held state. No broad action-execution change was made during the capture-validation follow-up.

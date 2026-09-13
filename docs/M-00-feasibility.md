@@ -1,6 +1,6 @@
 # M-00 — public API feasibility evidence
 
-Status: **NOT PASSED / three-contact local display confirmed by operator; global recognition pending**. Updated 2026-09-12.
+Status: **NOT PASSED / physical local tap replays through Core and AppModel; global recognition pending**. Updated 2026-09-13.
 Initial observations below are preserved; see the USB follow-up for the current hardware state.
 This is executable feasibility work, not certification of a global customizer.
 
@@ -121,3 +121,12 @@ The GUI now freezes the sample at the first observed complete sequence boundary,
 The newly saved 5,151-byte sample contains seven frames, three stable observed contact IDs, strictly increasing timestamps, and ended phases for every contact. Duration from first began to last ended is 0.1060192920267582 seconds; maximum normalized movement is 0.014631197639153284. Resting flags are actually present and false, and `sequenceEnded` metadata freezes at the final frame. No later one-contact movement is included. The file was already replaced successfully; the operator's screenshot was an earlier overwrite confirmation and required no further UI action.
 
 Core-only replay of the exact anonymized observations with tap and hold candidates enabled produces tracking for six frames, then one tap event on the final frame. This is the first positive recognition result from a saved physical local sample. It is not a synthetic gesture, but it is an offline replay: the sample contains no native-interference context, and the live GUI/action path, global contacts, hold/swipe vocabulary and physical lifecycle/coexistence still require separate validation. The earlier incomplete and malformed samples remain unchanged. See [physical samples](PHYSICAL-SAMPLES.md).
+
+
+## Public-input diagnostics and operator coordination — 2026-09-13
+
+The lead prepared Finder and the rebuilt, self-tested count-only probe before asking for physical input. After the operator reported readiness, a 60-second window was started, with instructions for pointer movement, three taps and a one-second hold. The file was saved automatically. It contains zero callback counts; readiness alone is not evidence the movements occurred inside the window. Operator completion is pending, and zero is therefore inconclusive.
+
+A follow-up diagnostic separates monitor registration, enabled tap, allowlisted console-session flags and aggregate window-server traffic from actual callback counts. Both an AppKit-local sentinel and a common-mode timer pass automatically. CUA click/drag interaction did not increment either the callbacks or aggregate counters and is not treated as a physical positive control. No permissions were changed and no keyboard/mouse events were posted by the probe.
+
+Public evidence remains: [AppKit's touch guide](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/EventOverview/HandlingTouchEvents/HandlingTouchEvents.html) attaches contact sequences to the receiving view; the [global monitor](https://developer.apple.com/documentation/appkit/nsevent/addglobalmonitorforevents(matching:handler:)) observes events delivered elsewhere without altering them; the exposed reference HID collections have no verified standard contact adapter. These facts do not justify inventing finger count/positions from pointer events. Private-framework research implementation or narrowing the product's global vocabulary still requires the explicit choice described above, after resolving the controlled physical observation.

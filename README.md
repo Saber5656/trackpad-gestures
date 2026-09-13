@@ -2,7 +2,7 @@
 
 A macOS-first, local gesture studio for Magic Trackpad. Planned cross-platform OSS; **unpublished, license undecided**.
 
-**Current build: simulation-only MVP prototype with experimental AppKit view-local preview.** It does not yet recognize global USB Magic Trackpad gestures or run actions from real gestures. A connected Magic Trackpad reports USB transport. On 2026-09-12 the operator confirmed three physical contacts displayed in the app-local preview; full physical gesture recognition and global capture remain unverified. Earlier Bluetooth observation is outside the formal MVP transport.
+**Current build: simulation-only MVP prototype with experimental AppKit view-local preview.** It does not yet recognize global USB Magic Trackpad gestures or run actions from real gestures. A connected Magic Trackpad reports USB transport. On 2026-09-12 the operator confirmed three physical contacts displayed in the app-local preview; a saved complete tap now replays successfully through Core and the app model. Live physical recognition and global capture remain unverified. Earlier Bluetooth observation is outside the formal MVP transport.
 
 ## Use locally
 

@@ -34,15 +34,48 @@ IOHIDManagerRegisterInputValueCallback(manager, { _, _, _, value in
 }, nil)
 IOHIDManagerScheduleWithRunLoop(manager, CFRunLoopGetCurrent(), CFRunLoopMode.commonModes.rawValue)
 let hidStatus: Int32? = listening ? IOHIDManagerOpen(manager, 0) : nil
+var dispatchTimer: Timer?
 if verifyDispatch {
+    let timer = Timer(timeInterval: 0.01, repeats: false) { _ in count("probe.runLoopSelfTest") }
+    RunLoop.current.add(timer, forMode: .common)
+    dispatchTimer = timer
     // An app-local sentinel for the isolated process test; never system mouse/key input.
     if let sentinel = NSEvent.otherEvent(with: .applicationDefined, location: .zero, modifierFlags: [],
         timestamp: ProcessInfo.processInfo.systemUptime, windowNumber: 0, context: nil, subtype: 0, data1: 0, data2: 0) {
         app.postEvent(sentinel, atStart: false)
     }
 }
+struct SessionSnapshot: Codable {
+    let available: Bool
+    let onConsole: Bool?
+    let loginDone: Bool?
+    static func current() -> Self {
+        let session = CGSessionCopyCurrentDictionary() as? [String: Any]
+        // Never serialize the dictionary: it also contains user names and identifiers.
+        return .init(available: session != nil, onConsole: session?[kCGSessionOnConsoleKey as String] as? Bool,
+                     loginDone: session?[kCGSessionLoginDoneKey as String] as? Bool)
+    }
+}
+let counterTypes: [(String, CGEventType)] = [("mouseMoved", .mouseMoved), ("leftMouseDown", .leftMouseDown),
+                                          ("leftMouseUp", .leftMouseUp), ("scrollWheel", .scrollWheel)]
+func windowServerCounters() -> [String: UInt32] {
+    Dictionary(uniqueKeysWithValues: counterTypes.map { ($0.0, CGEventSource.counterForEventType(.combinedSessionState, eventType: $0.1)) })
+}
+let sessionBefore = SessionSnapshot.current()
+let initialCounters = sessionBefore.available ? windowServerCounters() : nil
+let eventTapEnabledBefore = tap.map { CGEvent.tapIsEnabled(tap: $0) }
 let start = ProcessInfo.processInfo.systemUptime
 MainActor.assumeIsolated { ProbeEventLoop.run(seconds: seconds) }
+dispatchTimer?.invalidate()
+let eventTapEnabledAfter = tap.map { CGEvent.tapIsEnabled(tap: $0) }
+let sessionAfter = SessionSnapshot.current()
+// Aggregate session traffic, not device attribution or a loss measurement.
+let windowServerCounts: [String: UInt32]? = initialCounters.flatMap { before in
+    guard sessionAfter.available else { return nil }
+    return windowServerCounters().reduce(into: [:]) { result, entry in
+        result[entry.key] = entry.value &- before[entry.key, default: entry.value]
+    }
+}
 if let local { NSEvent.removeMonitor(local) }; if let global { NSEvent.removeMonitor(global) }
 if let tap { CFMachPortInvalidate(tap) }
 IOHIDManagerUnscheduleFromRunLoop(manager, CFRunLoopGetCurrent(), CFRunLoopMode.commonModes.rawValue)
@@ -50,6 +83,10 @@ IOHIDManagerClose(manager, 0)
 let encoder = JSONEncoder(); encoder.outputFormatting = [.prettyPrinted, .sortedKeys]
 struct Report: Codable {
     let dispatchSelfTest: Bool
+    let localMonitorCreated: Bool; let globalMonitorCreated: Bool
+    let eventTapEnabledBefore: Bool?; let eventTapEnabledAfter: Bool?
+    let sessionBefore: SessionSnapshot; let sessionAfter: SessionSnapshot
+    let windowServerCounts: [String: UInt32]?
     let os: String; let architecture: String; let durationSeconds: Double
     let accessibility: Bool; let inputMonitoring: Bool; let eventTapCreated: Bool; let hidOpenAttempted: Bool; let hidOpenStatus: Int32?
     let devices: [DeviceInfo]; let hidInventory: HIDInventorySnapshot; let counts: [String: Int]; let limitations: [String]
@@ -59,8 +96,10 @@ let architecture = "arm64"
 #else
 let architecture = "x86_64"
 #endif
-let report = Report(dispatchSelfTest: verifyDispatch, os: ProcessInfo.processInfo.operatingSystemVersionString, architecture: architecture,
+let report = Report(dispatchSelfTest: verifyDispatch, localMonitorCreated: local != nil, globalMonitorCreated: global != nil,
+ eventTapEnabledBefore: eventTapEnabledBefore, eventTapEnabledAfter: eventTapEnabledAfter,
+ sessionBefore: sessionBefore, sessionAfter: sessionAfter, windowServerCounts: windowServerCounts, os: ProcessInfo.processInfo.operatingSystemVersionString, architecture: architecture,
  durationSeconds: ProcessInfo.processInfo.systemUptime - start, accessibility: AXIsProcessTrusted(), inputMonitoring: listening,
  eventTapCreated: tap != nil, hidOpenAttempted: listening, hidOpenStatus: hidStatus, devices: DeviceDiscovery.list(), hidInventory: HIDCollectionInventory.list(), counts: counts,
- limitations: ["No permission prompt requested; preflight only", "IOHID VersionNumber is metadata, not verified firmware", "Global contact fields unavailable in implemented documented path", "Zero observed events do not prove lack of hardware support", "No device-specific latency/loss or coexistence certification"])
+ limitations: ["No permission prompt requested; preflight only", "IOHID VersionNumber is metadata, not verified firmware", "Global contact fields unavailable in implemented documented path", "Zero observed events do not prove lack of hardware support", "No device-specific latency/loss or coexistence certification", "Window-server counters are aggregate session traffic; they cannot establish physical origin, contact count or capture loss"])
 print(String(data: try encoder.encode(report), encoding: .utf8)!)
