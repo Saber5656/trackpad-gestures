@@ -65,7 +65,11 @@ let sessionBefore = SessionSnapshot.current()
 let initialCounters = sessionBefore.available ? windowServerCounters() : nil
 let eventTapEnabledBefore = tap.map { CGEvent.tapIsEnabled(tap: $0) }
 let start = ProcessInfo.processInfo.systemUptime
+// Wall-clock bounds of the recording window, so a user-reported action time can be
+// checked against whether it actually fell inside this run rather than before/after it.
+let startEpoch = Date().timeIntervalSince1970
 MainActor.assumeIsolated { ProbeEventLoop.run(seconds: seconds) }
+let endEpoch = Date().timeIntervalSince1970
 dispatchTimer?.invalidate()
 let eventTapEnabledAfter = tap.map { CGEvent.tapIsEnabled(tap: $0) }
 let sessionAfter = SessionSnapshot.current()
@@ -88,6 +92,7 @@ struct Report: Codable {
     let sessionBefore: SessionSnapshot; let sessionAfter: SessionSnapshot
     let windowServerCounts: [String: UInt32]?
     let os: String; let architecture: String; let durationSeconds: Double
+    let recordingStartedAtEpoch: Double; let recordingEndedAtEpoch: Double
     let accessibility: Bool; let inputMonitoring: Bool; let eventTapCreated: Bool; let hidOpenAttempted: Bool; let hidOpenStatus: Int32?
     let devices: [DeviceInfo]; let hidInventory: HIDInventorySnapshot; let counts: [String: Int]; let limitations: [String]
 }
@@ -99,7 +104,8 @@ let architecture = "x86_64"
 let report = Report(dispatchSelfTest: verifyDispatch, localMonitorCreated: local != nil, globalMonitorCreated: global != nil,
  eventTapEnabledBefore: eventTapEnabledBefore, eventTapEnabledAfter: eventTapEnabledAfter,
  sessionBefore: sessionBefore, sessionAfter: sessionAfter, windowServerCounts: windowServerCounts, os: ProcessInfo.processInfo.operatingSystemVersionString, architecture: architecture,
- durationSeconds: ProcessInfo.processInfo.systemUptime - start, accessibility: AXIsProcessTrusted(), inputMonitoring: listening,
+ durationSeconds: ProcessInfo.processInfo.systemUptime - start,
+ recordingStartedAtEpoch: startEpoch, recordingEndedAtEpoch: endEpoch, accessibility: AXIsProcessTrusted(), inputMonitoring: listening,
  eventTapCreated: tap != nil, hidOpenAttempted: listening, hidOpenStatus: hidStatus, devices: DeviceDiscovery.list(), hidInventory: HIDCollectionInventory.list(), counts: counts,
  limitations: ["No permission prompt requested; preflight only", "IOHID VersionNumber is metadata, not verified firmware", "Global contact fields unavailable in implemented documented path", "Zero observed events do not prove lack of hardware support", "No device-specific latency/loss or coexistence certification", "Window-server counters are aggregate session traffic; they cannot establish physical origin, contact count or capture loss"])
 print(String(data: try encoder.encode(report), encoding: .utf8)!)

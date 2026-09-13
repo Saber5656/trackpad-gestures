@@ -36,6 +36,11 @@ class ProbeProcessTests(unittest.TestCase):
             self.assertTrue(all(isinstance(v, int) and v >= 0 for v in report['windowServerCounts'].values()))
         self.assertGreaterEqual(report['durationSeconds'], 1)
         self.assertLess(report['durationSeconds'], 10)
+        self.assertIsInstance(report['recordingStartedAtEpoch'], float)
+        self.assertIsInstance(report['recordingEndedAtEpoch'], float)
+        self.assertGreater(report['recordingEndedAtEpoch'], report['recordingStartedAtEpoch'])
+        measured = report['recordingEndedAtEpoch'] - report['recordingStartedAtEpoch']
+        self.assertAlmostEqual(measured, report['durationSeconds'], delta=1.0)
         self.assertNotIn('serial', result.stdout.lower())
         self.assertNotIn('keycode', result.stdout.lower())
 
