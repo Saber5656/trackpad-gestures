@@ -1,6 +1,6 @@
 # M-00 — public API feasibility evidence
 
-Status: **NOT PASSED / physical local tap replays through Core and AppModel; global recognition pending**. Updated 2026-09-13.
+Status: **NOT PASSED / physical ordinary global input confirmed; global contact recognition pending**. Updated 2026-09-13.
 Initial observations below are preserved; see the USB follow-up for the current hardware state.
 This is executable feasibility work, not certification of a global customizer.
 
@@ -125,8 +125,18 @@ Core-only replay of the exact anonymized observations with tap and hold candidat
 
 ## Public-input diagnostics and operator coordination — 2026-09-13
 
-The lead prepared Finder and the rebuilt, self-tested count-only probe before asking for physical input. After the operator reported readiness, a 60-second window was started, with instructions for pointer movement, three taps and a one-second hold. The file was saved automatically. It contains zero callback counts; readiness alone is not evidence the movements occurred inside the window. Operator completion is pending, and zero is therefore inconclusive.
+The lead prepared Finder and the rebuilt, self-tested count-only probe before asking for physical input. After the operator reported readiness, a 60-second window was started, with instructions for pointer movement, three taps and a one-second hold. The file was saved automatically. It contains zero callback counts. The operator later explicitly confirmed performing the operations; exact window/context correlation was not established, and zero remains inconclusive. This historic report is preserved alongside the successful visible-window pointer control below.
 
 A follow-up diagnostic separates monitor registration, enabled tap, allowlisted console-session flags and aggregate window-server traffic from actual callback counts. Both an AppKit-local sentinel and a common-mode timer pass automatically. CUA click/drag interaction did not increment either the callbacks or aggregate counters and is not treated as a physical positive control. No permissions were changed and no keyboard/mouse events were posted by the probe.
 
 Public evidence remains: [AppKit's touch guide](https://developer.apple.com/library/archive/documentation/Cocoa/Conceptual/EventOverview/HandlingTouchEvents/HandlingTouchEvents.html) attaches contact sequences to the receiving view; the [global monitor](https://developer.apple.com/documentation/appkit/nsevent/addglobalmonitorforevents(matching:handler:)) observes events delivered elsewhere without altering them; the exposed reference HID collections have no verified standard contact adapter. These facts do not justify inventing finger count/positions from pointer events. Private-framework research implementation or narrowing the product's global vocabulary still requires the explicit choice described above, after resolving the controlled physical observation.
+
+## Successful physical pointer control after GUI grant — 2026-09-13
+
+The operator started the visible 30-second GUI check and confirmed moving over the
+app and Finder. The saved report has local.pointer **257**, global.pointer **442**,
+quartz.pointer **702**, and foreground/background status samples. App Input
+Monitoring and tap-enabled endpoints were true; Accessibility remained false.
+Normal external pointer delivery is now demonstrated. This is not global contact
+or gesture recognition. Full interpretation and limitations: [physical input
+results](PHYSICAL-INPUT-RESULTS.md). The main M-00 multi-finger criteria remain open.

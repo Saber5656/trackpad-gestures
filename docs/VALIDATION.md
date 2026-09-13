@@ -128,3 +128,15 @@ Only the diagnostic executable changed at runtime. The GUI application sources a
 - Operator completed macOS authentication. The exact tested local app was added to Input Monitoring and restarted using macOS Quit & Reopen. Settings shows its switch on, and the app itself reports granted. Accessibility remains not trusted. No credential was entered/read by the agent; no other app grant was changed.
 - A short startup/cancel check saved duration **4.237 seconds**, **42 timer ticks**, both AppKit monitors created and an enabled CG listen-only tap at both endpoints. This establishes setup after the grant, not physical delivery; callback counts were zero in this non-physical control. App SHA-256 remains `76ddcf6aa37ae0e6cfd93aaa5f50dddbbab39c50dfd54a4e69ff86e2b5fd3f7d`.
 - Source is unchanged; the previous 79 Swift tests / 21 suites, process test, clean-copy build and independent source review are reused. Documentation-only evidence updates have no executable behavior for TDD; parent reviewed the diff against the actual UI/report and checked personal-path/secret scope before commit. The physical in-app/Finder pointer control is now requested and pending.
+
+## Operator-confirmed physical pointer control — 2026-09-13
+
+The operator reported completion and a new 30-second completed report was found.
+Local/global/CG pointer callbacks were **257 / 442 / 702**. Permission and tap
+endpoints remained enabled, 67 foreground/82 background status samples were
+recorded, and counters did not saturate. Schema, distinct check ID, completion,
+duration, enabled endpoints, nonzero route counts and source SHA were checked
+automatically. See [exact physical results and limits](PHYSICAL-INPUT-RESULTS.md).
+This passes the ordinary-input positive control; multi-finger global recognition
+and native gesture coexistence remain untested. No source change or additional
+test/build success is claimed for this evidence-only update.
