@@ -1,6 +1,6 @@
 # Physical sample replay records
 
-この記録は、2026-09-12 に `appkit-local-unverified` の保存機能で得た2フレームのsampleを、個人を特定しない短いfixtureへ変換し、既存 `TrackpadCore` で再生した結果を残すものです。保存されたraw sampleはGitへ追加せず、fixtureのraw観測部分には座標・phase・フレーム間隔だけを保持しました。sourceのsession/contact IDは `session1` と `c1`〜`c3`へ一対一で置換しています。
+この記録は、2026-09-12 に `appkit-local-unverified` の保存機能で得た2フレームのsampleを、個人を特定しない短いfixtureへ変換し、既存 `TrackpadCore` で再生した結果を残すものです。保存されたraw sampleはGitへ追加せず、fixtureのraw観測部分には座標・phase・フレーム間隔だけを保持しました。sourceのsession/contact IDは `session1` と `c1`〜`c3`へ一対一で置換しています。2026-09-13 に保存された3件目のsample（`physical-third-sample`、schemaVersion 2、7フレーム）も同じ方針で追加しています。
 
 ## physical-incomplete-hold
 
@@ -34,6 +34,19 @@ The 61 ms interval is the interval between observed AppKit contact phases, not a
 This is a core-only replay: the GUI adapter normally calls `confirmEmptyBoundary()` after an all-terminal observation, which this direct `process` replay does not inject. Therefore its later waiting statuses are not a recording of the live GUI state. Native-interference context is also absent from the sample.
 
 This fixture records existing behavior and evidence only. Its test is outside TDD because it adds no recognition behavior: it fixes the exact raw-derived phases, relative timestamps, coordinates and resulting `status/events` for later diagnosis. The sample confirms that contact phases were observed and that this replay produced no action; it does not certify physical hold recognition, release duration, or native coexistence.
+
+## physical-third-sample
+
+- fixture: [`Tests/TrackpadCoreTests/Fixtures/physical-third-sample.json`](../Tests/TrackpadCoreTests/Fixtures/physical-third-sample.json)
+- provenance: `physical; AppKit local sample sanitized for replay`
+- sourceSHA-256: `cdacd7df1fd34545968f83a924fa968df3dfaebc37860cda5390dc0dc49a13ff`（読み取り専用のraw source: `.local/physical-evidence/2026-09-13-three-finger-tap.json`、schemaVersion 2）
+- source shape: `recording.finishReason=sequenceEnded`、`sampleCount=7`、7フレーム、3個の識別子（一対一で `c1`〜`c3` に置換）、全 `isResting=false`。frame 0〜6は `604251.781411833`〜`604251.887431125` の絶対timestampで、frame 0を基準とした相対差分は最終フレームで `0.1060192920267582` 秒（rawの `finishedAt - captureStartedAt` と一致）。3点は同時刻での重複終了イベントを含まない。
+- replay definitions: 3-finger tap（`minDuration=0`, `maxDuration=0.35`, `movementThreshold=0.06`, `cooldown=0.5`, enabled, `actionID=beep`）と同一fingerCountのhold（`minDuration=0.6`, `maxDuration=2`, `movementThreshold=0.06`, `cooldown=0.5`, enabled, `actionID=beep`）。actionIDはCore側の再生用参照データのみで、実際のbeep再生・GUI通知は今回のCore-onlyテストの対象外。
+- observed Core result: frame 0〜5は `tracking`、最終frame 6（最後の `c2` が単独で `ended` になる）で `fired` となり `tap` イベントが1件発火。`hold` イベントは発火しない（`minDuration=0.6` に到達する前にsequenceが終了しているため）。
+- fixtureの `captureMetadata` は実観測のrecording metadataと各frame順の `isResting` 値を保持する。Coreのframeやcapabilityに存在しない情報は追加していない。
+- テストログ: `.local/physical-third-sample-test.log`（このworktree内、git対象外）に `scripts/test.sh --filter PhysicalReplayTests` の全出力を保存済み。
+
+このfixtureは、以前の2件（`physical-incomplete-hold`＝2フレームでhold未完了、`physical-second-sample`＝43フレームで重複timestampによりmalformed）とは異なり、tapイベントが最後まで正常に発火した初めての物理sampleである。ただし、これはCore-onlyのreplayが保存済み観測データに対して`process`を直接呼び出した結果であり、実機でのGUI経路（`confirmEmptyBoundary()` 呼び出しを含む）、beepの実再生、長押し(hold)との共存、または本番のglobal監視下での動作を証明するものではない。観測データは既に固定されているため新しい認識挙動を追加するものではなく、今回のテストはTDDの対象外とした。
 
 検証コマンド:
 

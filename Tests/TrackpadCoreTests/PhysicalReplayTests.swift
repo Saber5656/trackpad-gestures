@@ -82,4 +82,54 @@ struct PhysicalReplayTests {
         #expect(outputs[5].status == .waitingForBoundary)
         #expect(outputs[42].status == .waitingForBoundary)
     }
+
+    @Test func thirdPhysicalSampleReplaysThreeFingerTapSequence() throws {
+        let url = try #require(Bundle.module.url(forResource: "physical-third-sample", withExtension: "json", subdirectory: "Fixtures"))
+        let fixture = try JSONDecoder().decode(Fixture.self, from: Data(contentsOf: url))
+
+        #expect(fixture.provenance == "physical; AppKit local sample sanitized for replay")
+        #expect(fixture.sourceSHA == "cdacd7df1fd34545968f83a924fa968df3dfaebc37860cda5390dc0dc49a13ff")
+        #expect(fixture.frames.count == 7)
+        #expect(Set(fixture.frames.flatMap { $0.contacts }.map(\.id)) == ["c1", "c2", "c3"])
+        #expect(fixture.frames.allSatisfy { $0.sessionID == "session1" && $0.transport == .unknown })
+        #expect(fixture.frames.allSatisfy { $0.capabilities == CapabilityRegistry.contactRecognition })
+        #expect(fixture.frames[6].timestamp - fixture.frames[0].timestamp == 0.1060192920267582)
+        #expect(fixture.frames[5].contacts.map(\.id) == ["c2", "c3", "c1"])
+        #expect(fixture.frames[5].contacts.map(\.phase) == [.stationary, .ended, .ended])
+        #expect(fixture.frames[6].contacts.map(\.id) == ["c2"])
+        #expect(fixture.frames[6].contacts[0].phase == .ended)
+        let hold = try #require(fixture.definitions.first { $0.id == "hold" })
+        #expect(hold.kind == .hold)
+        #expect(hold.fingerCount == 3)
+        #expect(hold.minDuration == 0.6)
+        #expect(hold.maxDuration == 2)
+        #expect(hold.movementThreshold == 0.06)
+        #expect(hold.cooldown == 0.5)
+        #expect(hold.enabled)
+        let tap = try #require(fixture.definitions.first { $0.id == "tap" })
+        #expect(tap.kind == .tap)
+        #expect(tap.minDuration == 0)
+        #expect(tap.maxDuration == 0.35)
+        #expect(tap.movementThreshold == 0.06)
+        #expect(tap.cooldown == 0.5)
+        #expect(tap.enabled)
+
+        let envelope = try #require(JSONSerialization.jsonObject(with: Data(contentsOf: url)) as? [String: Any])
+        let capture = try #require(envelope["captureMetadata"] as? [String: Any])
+        let window = try #require(capture["recording"] as? [String: Any])
+        #expect(capture["sampleSchemaVersion"] as? Int == 2)
+        #expect(capture["restingByFrame"] as? [[Bool]] == fixture.frames.map { $0.contacts.map { _ in false } })
+        #expect(window["finishReason"] as? String == "sequenceEnded")
+        #expect(window["sampleCount"] as? Int == fixture.frames.count)
+        let capturedAt = try #require(window["captureStartedAt"] as? Double)
+        let finishedAt = try #require(window["finishedAt"] as? Double)
+        #expect(finishedAt - capturedAt == fixture.frames[6].timestamp)
+
+        let engine = GestureEngine(definitions: fixture.definitions)
+        let outputs = fixture.frames.map { engine.process($0) }
+        print("physical-third-sample statuses=\(outputs.map { $0.status.rawValue }); events=\(outputs.flatMap(\.events).map { $0.gestureID })")
+
+        #expect(outputs.map(\.status.rawValue) == fixture.expectedStatuses)
+        #expect(outputs.flatMap(\.events).map(\.gestureID) == fixture.expectedIDs)
+    }
 }

@@ -1,0 +1,291 @@
+{
+  "provenance": "physical; AppKit local sample sanitized for replay",
+  "sourceSHA": "cdacd7df1fd34545968f83a924fa968df3dfaebc37860cda5390dc0dc49a13ff",
+  "definitions": [
+    {
+      "id": "hold",
+      "name": "Physical Hold",
+      "kind": "hold",
+      "fingerCount": 3,
+      "zone": "any",
+      "movementThreshold": 0.06,
+      "minDuration": 0.6,
+      "maxDuration": 2,
+      "modifiers": [],
+      "priority": 0,
+      "cooldown": 0.5,
+      "actionID": "beep",
+      "requiredCapabilities": [],
+      "enabled": true
+    },
+    {
+      "id": "tap",
+      "name": "Physical Tap",
+      "kind": "tap",
+      "fingerCount": 3,
+      "zone": "any",
+      "movementThreshold": 0.06,
+      "minDuration": 0,
+      "maxDuration": 0.35,
+      "modifiers": [],
+      "priority": 0,
+      "cooldown": 0.5,
+      "actionID": "beep",
+      "requiredCapabilities": [],
+      "enabled": true
+    }
+  ],
+  "frames": [
+    {
+      "timestamp": 0.0,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c1",
+          "x": 0.5796356201171875,
+          "y": 0.590484619140625,
+          "phase": "began"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 0.016002457938157022,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c2",
+          "x": 0.3533172607421875,
+          "y": 0.457611083984375,
+          "phase": "began"
+        },
+        {
+          "id": "c3",
+          "x": 0.46240234375,
+          "y": 0.5582733154296875,
+          "phase": "began"
+        },
+        {
+          "id": "c1",
+          "x": 0.5796356201171875,
+          "y": 0.590484619140625,
+          "phase": "stationary"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 0.03099245799239725,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c2",
+          "x": 0.3533172607421875,
+          "y": 0.457611083984375,
+          "phase": "stationary"
+        },
+        {
+          "id": "c3",
+          "x": 0.46240234375,
+          "y": 0.5582733154296875,
+          "phase": "stationary"
+        },
+        {
+          "id": "c1",
+          "x": 0.5751495361328125,
+          "y": 0.585296630859375,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 0.046995542012155056,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c2",
+          "x": 0.3533172607421875,
+          "y": 0.457611083984375,
+          "phase": "stationary"
+        },
+        {
+          "id": "c3",
+          "x": 0.46240234375,
+          "y": 0.5582733154296875,
+          "phase": "stationary"
+        },
+        {
+          "id": "c1",
+          "x": 0.5727081298828125,
+          "y": 0.5841522216796875,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 0.06106712494511157,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c2",
+          "x": 0.3533172607421875,
+          "y": 0.457611083984375,
+          "phase": "stationary"
+        },
+        {
+          "id": "c3",
+          "x": 0.46240234375,
+          "y": 0.5582733154296875,
+          "phase": "stationary"
+        },
+        {
+          "id": "c1",
+          "x": 0.5718994140625,
+          "y": 0.5830078125,
+          "phase": "moved"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 0.07701966702006757,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c2",
+          "x": 0.3533172607421875,
+          "y": 0.457611083984375,
+          "phase": "stationary"
+        },
+        {
+          "id": "c3",
+          "x": 0.4599609375,
+          "y": 0.5530853271484375,
+          "phase": "ended"
+        },
+        {
+          "id": "c1",
+          "x": 0.5678253173828125,
+          "y": 0.58184814453125,
+          "phase": "ended"
+        }
+      ],
+      "modifiers": []
+    },
+    {
+      "timestamp": 0.1060192920267582,
+      "sessionID": "session1",
+      "transport": "unknown",
+      "capabilities": [
+        "multiTouch",
+        "contactIdentity",
+        "normalizedCoordinates"
+      ],
+      "contacts": [
+        {
+          "id": "c2",
+          "x": 0.3533172607421875,
+          "y": 0.454742431640625,
+          "phase": "ended"
+        }
+      ],
+      "modifiers": []
+    }
+  ],
+  "expectedStatuses": [
+    "tracking",
+    "tracking",
+    "tracking",
+    "tracking",
+    "tracking",
+    "tracking",
+    "fired"
+  ],
+  "expectedIDs": [
+    "tap"
+  ],
+  "captureMetadata": {
+    "sampleSchemaVersion": 2,
+    "pressureAvailable": false,
+    "areaAvailable": false,
+    "recording": {
+      "armedAt": 604250.158121875,
+      "captureDeadline": 604254.781411833,
+      "captureStartedAt": 604251.781411833,
+      "finishReason": "sequenceEnded",
+      "finishedAt": 604251.887431125,
+      "sampleCount": 7
+    },
+    "restingByFrame": [
+      [
+        false
+      ],
+      [
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false,
+        false
+      ],
+      [
+        false,
+        false,
+        false
+      ],
+      [
+        false
+      ]
+    ]
+  }
+}

@@ -4,10 +4,10 @@ Local planning IDs only: no GitHub repository/Issues were created.
 
 | ID | Deliverable | Dependency | Current acceptance |
 |---|---|---|---|
-| M-00 | Public API probe and wired reference evidence | — | Probe implemented; wired hardware/global vocabulary not verified |
+| M-00 | Public API probe and wired reference evidence | — | USB metadata and local tap sample observed; global vocabulary not verified |
 | P-01 | Hardware/API/language/license/distribution ADR | M-00 | Swift/public-only experiment chosen; license/distribution pending |
 | C-01 | Strict versioned input/config contract | P-01 | Implemented with tests; see validation |
-| C-02 | Deterministic core, replay, seeded fuzz | C-01 | Synthetic validation; hardware false-trigger validation pending |
+| C-02 | Deterministic core, replay, seeded fuzz | C-01 | Synthetic and saved local tap replay; hardware false-trigger validation pending |
 | M-01 | Capture, permissions, lifecycle | M-00,C-01 | Experimental local view + discovery; global USB adapter blocked on evidence |
 | M-02 | Safe actions, onboarding | P-01,C-01 | Manual handler actions; key injection unsupported |
 | U-01 | Gesture editor, visualizer, conflicts, import/export | C-01,C-02 | Local implementation; source limitations visible |
@@ -41,3 +41,5 @@ Independent schema/core/editor work proceeds despite missing hardware; this does
 ## Locally registered follow-up
 
 - Packaging backup discoverability: retained `previous.app` bundles share the app identifier and made bundle-ID lookup ambiguous on 2026-09-12. Selecting the explicit current `dist/TrackpadGestures.app` path resolved this run. Future packaging work should retain rollback evidence in a form that is not another discoverable application; do not delete old generated output merely to fix lookup. This is registered only, with no packaging change in the physical-contact confirmation task.
+
+- Preview-expiry message after export: the UI can say “No raw stream was saved” after an explicit sample export has succeeded. The 2026-09-13 file was independently verified on disk. A future wording fix should distinguish no automatic logging from a successfully exported sample; this confirmation task only records the finding.

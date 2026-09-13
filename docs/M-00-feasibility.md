@@ -31,7 +31,7 @@ See [official research](research.md) for citations. No private-framework impleme
 | Criterion | Result |
 |---|---|
 | Global multi-finger tap/hold/directional swipe | Not demonstrated; no supported global contact adapter |
-| Deterministic sequence processing | Synthetic fixtures only; see validation |
+| Deterministic sequence processing | Synthetic fixtures and a saved local physical tap replay; see validation |
 | Native pointer/click/scroll not suppressed or duplicated | Code path is observational, no posting or filter; physical coexistence untested |
 | Exit/disconnect has no stuck synthetic key/button | No key/button synthesis implemented; lifecycle cancellation tests; physical transitions untested |
 | Bounded capture/log | 30s live preview, at most 10 contacts; explicit 3s/180-sample recorder; 64 diagnostic entries, no general payload logger |
@@ -115,3 +115,9 @@ The repair normalizes each event object once using a weak last-event reference, 
 The previous recorder included all delivered contacts until its time/count limit or explicit export. A second one-finger movement after the three-contact portion is compatible with the operator's report of moving to the export control, but the saved touch positions do not identify a screen destination. It appended later observations; it did not replace the first sequence.
 
 The GUI now freezes the sample at the first observed complete sequence boundary, preserving sequential finger lifts and stopping separately on cancellation or invalid input. Subsequent movement can update the live visualizer but cannot append to the frozen sample. The existing 3-second/180-frame cap and 30-second preview cancellation policy remain. The `frozen` indicator distinguishes sample state from live input. This repairs the recording workflow; it neither establishes a supported global capture path nor retroactively turns the old malformed sample into a valid recognized gesture.
+
+## First complete saved local tap — 2026-09-13
+
+The newly saved 5,151-byte sample contains seven frames, three stable observed contact IDs, strictly increasing timestamps, and ended phases for every contact. Duration from first began to last ended is 0.1060192920267582 seconds; maximum normalized movement is 0.014631197639153284. Resting flags are actually present and false, and `sequenceEnded` metadata freezes at the final frame. No later one-contact movement is included. The file was already replaced successfully; the operator's screenshot was an earlier overwrite confirmation and required no further UI action.
+
+Core-only replay of the exact anonymized observations with tap and hold candidates enabled produces tracking for six frames, then one tap event on the final frame. This is the first positive recognition result from a saved physical local sample. It is not a synthetic gesture, but it is an offline replay: the sample contains no native-interference context, and the live GUI/action path, global contacts, hold/swipe vocabulary and physical lifecycle/coexistence still require separate validation. The earlier incomplete and malformed samples remain unchanged. See [physical samples](PHYSICAL-SAMPLES.md).
