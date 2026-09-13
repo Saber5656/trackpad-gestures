@@ -17,7 +17,7 @@ operator's confirmation or claim that zero demonstrates a public-API limitation.
 - CUA blank-Finder operations also produced zero counts. CUA can operate a hidden
   app through accessibility, so those operations do not prove physical event
   delivery to this monitor.
-- The packaged GUI app reports Input Monitoring **not granted** and Accessibility
+- Before operator authentication, the packaged GUI app reported Input Monitoring **not granted** and Accessibility
   **not trusted**, while the CLI reports granted/trusted. Permissions belong to
   their execution contexts; the CLI result cannot be applied to the GUI app.
 - No explicit defect causing all counters to stay zero was established by the
@@ -80,6 +80,24 @@ coexistence tests remain pending.
 - [Prohibited activation policy](https://developer.apple.com/documentation/appkit/nsapplication/activationpolicy-swift.enum/prohibited):
   activation/window restrictions do not by themselves settle monitor delivery.
 
-No private API, new entitlement, root, kernel extension, signing, notarization,
-permission grant or publication was performed. The public/private distribution
+At the pre-authentication checkpoint, no private API, new entitlement, root, kernel
+extension, signing, notarization, permission grant or publication had been performed. The public/private distribution
 decision remains pending evidence and the operator's explicit choice.
+
+
+## Operator-authenticated Input Monitoring grant — 2026-09-13
+
+The operator completed the macOS authentication prompt and reported completion.
+The parent selected the exact current `dist/TrackpadGestures.app` in the open panel,
+added it to Input Monitoring, and followed macOS **Quit & Reopen**. Settings showed
+its switch on; the restarted app's own preflight was true. Accessibility remains
+false and was not requested or granted. The executable is unchanged from the tested
+release build; no new signing operation occurred.
+
+A 4.237-second startup check then reported both AppKit monitors created, Input
+Monitoring true and the CG listen-only tap enabled at both endpoints; 42 timer ticks
+ran. The parent explicitly cancelled it, and the count-only report saved correctly.
+No physical input was requested during this startup check; its zero counts are not
+a negative physical result. The app is ready for the operator to start a new
+30-second in-app/Finder pointer control directly. Global gesture support remains
+unverified.

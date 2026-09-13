@@ -121,3 +121,10 @@ Only the diagnostic executable changed at runtime. The GUI application sources a
 
 - Final packaged binary matches the release executable byte for byte. Its new process restored existing profiles, started the diagnostic and saved an explicit cancelled report when stopped. The GUI displayed **OS側のポインター: 未取得** with an absent tap, verifying the corrected presentation. The app remains stopped/ready; no physical gesture is inferred from these GUI automation checks.
 - macOS requested the operator's password when opening Add in Input Monitoring. The parent stopped at that authentication dialog and requested on-device entry. Authentication/permission grant is pending; no credential was read or entered by the agent.
+
+
+## Permission grant and restart — 2026-09-13
+
+- Operator completed macOS authentication. The exact tested local app was added to Input Monitoring and restarted using macOS Quit & Reopen. Settings shows its switch on, and the app itself reports granted. Accessibility remains not trusted. No credential was entered/read by the agent; no other app grant was changed.
+- A short startup/cancel check saved duration **4.237 seconds**, **42 timer ticks**, both AppKit monitors created and an enabled CG listen-only tap at both endpoints. This establishes setup after the grant, not physical delivery; callback counts were zero in this non-physical control. App SHA-256 remains `76ddcf6aa37ae0e6cfd93aaa5f50dddbbab39c50dfd54a4e69ff86e2b5fd3f7d`.
+- Source is unchanged; the previous 79 Swift tests / 21 suites, process test, clean-copy build and independent source review are reused. Documentation-only evidence updates have no executable behavior for TDD; parent reviewed the diff against the actual UI/report and checked personal-path/secret scope before commit. The physical in-app/Finder pointer control is now requested and pending.
