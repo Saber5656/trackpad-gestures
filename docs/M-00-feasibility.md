@@ -140,3 +140,14 @@ Monitoring and tap-enabled endpoints were true; Accessibility remained false.
 Normal external pointer delivery is now demonstrated. This is not global contact
 or gesture recognition. Full interpretation and limitations: [physical input
 results](PHYSICAL-INPUT-RESULTS.md). The main M-00 multi-finger criteria remain open.
+
+
+### 2026-09-13 — Field diagnostic ready after permission repair
+
+The current development build's old/new cdhash mismatch was confirmed in TCC
+logs and repaired through a scoped registration reset and exact-app GUI re-add.
+Input Monitoring and an actual non-seizing reference USB HID open (status0)
+are now verified in the rebuilt app. See [permission recovery](PERMISSION-RECOVERY.md).
+This is source setup only. Global finger/contact fields and target vocabulary
+still await the operator's in-app/Finder tap/hold/swipe comparison; M-00 has
+not passed. The executable is kept unchanged during this physical trial.

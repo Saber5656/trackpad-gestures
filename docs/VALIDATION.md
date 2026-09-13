@@ -181,3 +181,29 @@ test/build success is claimed for this evidence-only update.
   diagnostic reported CPU 0.0–0.1% and resident memory 69,584 KiB. These are
   bounded process estimates at idle, not physical-input latency/loss or load
   measurements. The current input-permission authentication sheet stayed open.
+
+
+## 2026-09-13 — Updated binary permission restored and USB observer opened
+
+The prior pending authentication is complete. OFF/ON plus restart and Add over
+an existing registration failed; targeted TCC logs proved an old/new code-hash
+requirement mismatch. A bundle/service-scoped reset followed by selecting the
+exact current app in System Settings restored access without another credential
+request. Profiles were byte-identical across the scoped reset. See
+[recovery evidence and procedure](PERMISSION-RECOVERY.md).
+
+The current executable remains SHA `81c736f12b51a218f2cab90ad35c034067ab7feff5398b2a6a5ecf8330878baf`.
+A **5.796-second cancelled setup** confirmed Input Monitoring true, Accessibility
+false, both AppKit monitors, enabled CG tap before/after, 57 dispatch ticks, and
+**actual USB HID open status 0 / available true**. This resolves the independent
+review's uncertainty about the exact product match on the reference hardware.
+It does not test the real open-error path or constitute a physical gesture trial.
+
+No source/build change: the 92-test/22-suite main and clean-copy results and the
+release build remain applicable. Documentation-only updates have no executable
+behavior for TDD. Parent self-reviewed claims against the actual log, hashes,
+UI and saved report, checked path/secret scope, and retained the failed recovery
+attempts. The next user-started 30-second comparison is prepared with Local
+preview selected but capture/recording stopped; the visible surface opts into
+AppKit indirect touches for the in-app comparison. Finder is open to `Tests`.
+Only the count-only diagnostic should be started; raw Record/Export is unnecessary.
