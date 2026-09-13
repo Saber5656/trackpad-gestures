@@ -105,3 +105,44 @@ The parent tested the new count-window and lifecycle/save manager from missing-b
 A separate Claude read-only execution reviewed an isolated snapshot of the integrated source/tests/docs and returned approve with no findings. Limitations: no test rerun or physical input, abbreviated DESIGN/ISSUE_PLAN checks, and no runtime thread-contention experiment. The parent verified main-run-loop registration, performed the full and clean-copy tests/builds, checked UI/autosave and reviewed the doc updates. Both executions requested sonnet/low and reported claude-sonnet-5; alias mismatch flags are retained. No fallback was used. Unchanged evidence was reviewed once.
 
 Physical input delivery, gesture capability, native coexistence and hardware lifecycle remain open. Coarse CPU/RSS observations are not performance acceptance. Failed initial test invocations and initial UI presentation are recorded rather than described as successful. No permissions or distribution policy changed.
+
+
+## 2026-09-13 — Public gesture-field diagnostic
+
+Claude sonnet/low implemented the bounded observation extension in an isolated
+worktree. The parent integrated it and adopted seven correctness/privacy fixes:
+strict USB reference matching (including callback devices), absence versus a
+queried zero count, preserving actual counts rather than clamping them, bounded
+phase work before transformation, independent digitizer totals after usage-key
+truncation, unavailable HID totals as absent, and deadline/open-failure cleanup.
+The parent added regressions, observed the worker version fail, and repaired it.
+The worker's original RED was produced by reverting already-written source;
+that is preserved as a test-first workflow limitation, not strict chronological TDD.
+
+A separate Claude read-only execution reviewed the integrated six-file snapshot.
+It returned `approve` with two low findings; the runner correctly classified the
+inconsistent combination as `review_incomplete`, so this is not recorded as an
+unconditional machine approval. The parent evaluated both findings:
+
+1. Product-string mismatch: the suggestion that the reference product might be
+   `Magic Trackpad 2` was speculative. Existing public inventory records and
+   the current app discovery display both say `Magic Trackpad`, USB,
+   VID `0x05ac` / PID `0x0324`. Keep the conservative match; do not broaden it
+   based on an unverified alternate model name. The actual new HID open is
+   still pending restored Input Monitoring, and must be checked before a trial.
+2. Open-failure cleanup lacks an automated real-IOKit failure test: accepted as
+   a validation limitation, not an identified code defect. Parent verified the
+   unregister/unschedule/close/clear path statically. It does not inject keys,
+   seize devices or write reports. The permission-denied real-app smoke now
+   proves preflight skips HID opening and emits unavailable/absent counts;
+   that is a different path and does not replace an open-failure test. A manual
+   open-failure procedure and expected result are retained in the diagnostic doc.
+
+Both executions requested sonnet/low and reported `claude-sonnet-5`; alias mismatch
+flags and actual reported usage are retained privately. No fallback was used.
+Reviewer limitations: read-only, no test rerun or hardware trial. Parent ran all
+92 tests / 22 suites and clean-source tests/release packaging on the same Mac,
+matched packaged source to main, and verified normal launch and cancelled autosave.
+The parent self-reviewed subsequent evidence/documentation edits and checked
+personal-path/secret scope. The product remains unverified for global contact
+capture and does not execute keyboard shortcuts or gesture-driven actions.

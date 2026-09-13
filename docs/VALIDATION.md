@@ -140,3 +140,44 @@ automatically. See [exact physical results and limits](PHYSICAL-INPUT-RESULTS.md
 This passes the ordinary-input positive control; multi-finger global recognition
 and native gesture coexistence remain untested. No source change or additional
 test/build success is claimed for this evidence-only update.
+
+
+## 2026-09-13 — Gesture-field diagnostic integration
+
+- Added exact AppKit gesture-type/touch-availability summaries and reference-USB
+  usage-only HID observation; see [field semantics](GESTURE-FIELD-DIAGNOSTIC.md).
+- Parent behavioral RED: three tests produced four failing assertions against
+  the worker version (no-query maximum, oversized count/phase handling, lost
+  digitizer total after dictionary truncation); reference matcher initially
+  failed compilation until implemented. Corrected an SDK compile mismatch:
+  `IOHIDElementGetDevice` returns a nonoptional device. Direct NSEvent doubles
+  also verify the eligible-event guard and queried-empty-set distinction.
+- Final main: **92 tests / 22 suites passed**. A fresh source-only copy without
+  `.env`, profiles, build or Git metadata, and with a reduced process environment,
+  passed the same **92 tests / 22 suites** and release app packaging. This is
+  a same-host clean build, not an independent OS installation. Unchanged probe,
+  packaging, keyboard no-input subprocess and core validation evidence is reused.
+- The new release executable SHA-256 is
+  `81c736f12b51a218f2cab90ad35c034067ab7feff5398b2a6a5ecf8330878baf`.
+  Parent confirmed source equality with the clean-tested build, normally quit
+  the previous app and packaged/launched the replacement at the same local path.
+- After replacement, System Settings retained the app's Input Monitoring switch
+  on, but the new app preflight returned false. A 4.164136624895036-second cancelled
+  startup check (ID `5A87733D-6E36-4267-A730-8EBADB94E1FD`) saved successfully:
+  AppKit monitor handles existed, dispatch ticks41, Accessibilityfalse,
+  no CG tap, HID unavailable with `inputMonitoringNotGranted`, no invented HID
+  event totals, no gesture detail. Counts were empty; no physical input was
+  requested, so this is not a negative gesture trial. It confirms safe degradation.
+- Refreshing the existing app permission reached macOS's password sheet. Operator
+  authentication is pending; no credential was entered/read by the agent.
+  This update-related permission continuity issue is a distribution limitation
+  of the current development build. No signing, Apple Developer authentication,
+  notarization, private API, HID mode change or publication was performed.
+- Next physical tap/hold/swipe comparison is pending permission restoration and
+  actual source-open preflight. The previously positive ordinary pointer report
+  remains intact and is not overwritten by this setup check's evidence copy.
+
+- New release idle smoke: ten one-second `ps` samples after the cancelled setup
+  diagnostic reported CPU 0.0–0.1% and resident memory 69,584 KiB. These are
+  bounded process estimates at idle, not physical-input latency/loss or load
+  measurements. The current input-permission authentication sheet stayed open.
