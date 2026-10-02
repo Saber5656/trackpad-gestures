@@ -80,6 +80,21 @@ public final class SafeActionExecutor {
         try backend.perform(action)
     }
 }
+func requestApplicationHide(isHidden: @escaping () -> Bool, hide: () -> Bool,
+                            schedule: @escaping (TimeInterval, @escaping () -> Void) -> Void = { delay, work in
+                                DispatchQueue.main.asyncAfter(deadline: .now()+delay, execute: work)
+                            }, completion: @escaping (Bool) -> Void) {
+    if isHidden() || hide() || isHidden() { completion(true); return }
+    // hide() can return false before macOS publishes the hidden state.
+    func check(_ attemptsRemaining: Int) {
+        schedule(0.05) {
+            if isHidden() { completion(true) }
+            else if attemptsRemaining > 1 { check(attemptsRemaining-1) }
+            else { completion(false) }
+        }
+    }
+    check(20)
+}
 public final class WorkspaceActionBackend: ActionBackend {
     public var completion: ((Bool) -> Void)?
     public init() {}
@@ -101,9 +116,10 @@ public final class WorkspaceActionBackend: ActionBackend {
                   app.activate(options: []) else { throw ActionFailure.unavailable }
             completion?(true)
         case .hideApp(let id):
-            guard let app = NSRunningApplication.runningApplications(withBundleIdentifier: id).first,
-                  app.hide() else { throw ActionFailure.unavailable }
-            completion?(true)
+            guard let app = NSRunningApplication.runningApplications(withBundleIdentifier: id).first else { throw ActionFailure.unavailable }
+            requestApplicationHide(isHidden: { app.isHidden }, hide: { app.hide() }) { [weak self] success in
+                self?.completion?(success)
+            }
         case .appleShortcut(let name):
             var parts = URLComponents(); parts.scheme = "shortcuts"; parts.host = "run-shortcut"
             parts.queryItems = [.init(name: "name", value: name)]

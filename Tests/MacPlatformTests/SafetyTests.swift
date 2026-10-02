@@ -6,6 +6,33 @@ final class FakeBackend: ActionBackend {
     func perform(_ action: SafeAction) throws { calls.append(action) }
 }
 struct SafetyTests {
+    @Test func hideFalseWaitsForAsynchronousHiddenState() {
+        var hidden=false; var scheduled: [() -> Void]=[]; var results: [Bool]=[]
+        requestApplicationHide(isHidden:{ hidden },hide:{ false },schedule:{ _, work in scheduled.append(work) },completion:{ results.append($0) })
+        #expect(results.isEmpty)
+        scheduled.removeFirst()()
+        #expect(results.isEmpty)
+        hidden=true; scheduled.removeFirst()()
+        #expect(results == [true])
+        #expect(scheduled.isEmpty)
+    }
+    @Test func hideFailureHasBoundedConfirmation() {
+        var scheduled: [() -> Void]=[]; var results: [Bool]=[]; var elapsed=0.0
+        requestApplicationHide(isHidden:{ false },hide:{ false },schedule:{ delay, work in elapsed += delay; scheduled.append(work) },completion:{ results.append($0) })
+        var checks=0
+        while !scheduled.isEmpty && checks < 100 { checks += 1; scheduled.removeFirst()() }
+        #expect(checks == 20)
+        #expect(abs(elapsed-1) < 1e-9)
+        #expect(results == [false])
+        #expect(scheduled.isEmpty)
+    }
+    @Test func alreadyHiddenAndSuccessfulRequestsCompleteImmediately() {
+        var results: [Bool]=[]; var hideCalls=0
+        requestApplicationHide(isHidden:{ true },hide:{ hideCalls += 1; return false },schedule:{ _,_ in Issue.record("Unexpected delay") },completion:{ results.append($0) })
+        #expect(hideCalls == 0)
+        requestApplicationHide(isHidden:{ false },hide:{ true },schedule:{ _,_ in Issue.record("Unexpected delay") },completion:{ results.append($0) })
+        #expect(results == [true,true])
+    }
     @Test func testPreviewNeverExecutesAndKeyboardNeverInjects() throws {
         let backend = FakeBackend(); let executor = SafeActionExecutor(backend: backend)
         #expect(throws: (any Error).self) { try executor.execute(.beep, origin: .preview, now: 1) }

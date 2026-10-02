@@ -80,6 +80,48 @@ struct GestureDraft {
     }
 }
 
+struct SyntheticContactPath {
+    let starts: [(Double, Double)]
+    let dx: Double
+    let dy: Double
+    init?(_ definition: GestureDefinition) {
+        guard (2...5).contains(definition.fingerCount), definition.movementThreshold.isFinite,
+              (0...1).contains(definition.movementThreshold), definition.kind.isRecognizable else { return nil }
+        let zone=definition.zone.rawValue.lowercased()
+        let preferredX=zone.contains("left") ? 0.08 : (zone.contains("right") ? 0.85 : 0.4)
+        let preferredY=zone.contains("bottom") ? 0.08 : (zone.contains("top") ? 0.85 : 0.4)
+        let distances: [Double]
+        if case .swipe=definition.kind { distances=[definition.movementThreshold+0.04, definition.movementThreshold] }
+        else { distances=[0] }
+        for distance in distances {
+            var dx=0.0; var dy=0.0
+            if case .swipe(let direction)=definition.kind {
+                switch direction { case .right: dx=distance; case .left: dx = -distance; case .up: dy=distance; case .down: dy = -distance }
+            }
+            let minX = -min(0,dx), maxX=1-max(0,dx)
+            let minY = -min(0,dy), maxY=1-max(0,dy)
+            guard minX <= maxX, minY <= maxY else { continue }
+            let x=min(max(preferredX,minX),maxX), y=min(max(preferredY,minY),maxY)
+            guard GestureOrdering.zoneContains(definition.zone,x:x,y:y) else { continue }
+            let horizontal=dx != 0
+            let center=horizontal ? y : x
+            let spread=min(Double(definition.fingerCount-1)*0.03, min(center-0.01,0.99-center))
+            starts=(0..<definition.fingerCount).map { i in
+                let offset=spread*(2*Double(i)/Double(definition.fingerCount-1)-1)
+                return (x+(horizontal ? 0 : offset), y+(horizontal ? offset : 0))
+            }
+            self.dx=dx; self.dy=dy
+            return
+        }
+        return nil
+    }
+    func contacts(at fraction: Double, phase: ContactPhase) -> [Contact] {
+        starts.enumerated().map { i, start in
+            Contact(id:String(i),x:start.0+dx*fraction,y:start.1+dy*fraction,phase:phase)
+        }
+    }
+}
+
 final class AppModel: ObservableObject {
     @Published var document: ProfileDocument
     @Published var profileIndex=0
@@ -316,20 +358,14 @@ final class AppModel: ObservableObject {
         engine=GestureEngine(definitions:candidates)
         let g=draft.definition
         guard g.kind.isRecognizable else { status="Unsupported recognizer: pinch/rotate are not implemented."; return }
+        guard let path=SyntheticContactPath(g) else { status="No bounded synthetic path fits this start zone and movement threshold."; return }
         let duration=max(0.1,g.kind == .hold ? draft.minimum+0.1 : min(0.2,draft.maximum))
         let count=min(120,max(3,Int(duration*30)))
         let session=UUID().uuidString; let base=ProcessInfo.processInfo.systemUptime; let epoch=generation
-        var x=0.4; var y=0.4
-        if draft.zone.lowercased().contains("left") { x=0.08 }; if draft.zone.lowercased().contains("right") { x=0.85 }
-        if draft.zone.lowercased().contains("top") { y=0.85 }; if draft.zone.lowercased().contains("bottom") { y=0.08 }
         status="Synthetic replay — enabled definitions compete on release."
         for step in 0...count {
-            let fraction=Double(step)/Double(count); var dx=0.0; var dy=0.0
-            if case .swipe(let d)=g.kind {
-                let move=min(0.4,g.movementThreshold+0.04)*fraction
-                switch d { case .right: dx=move; case .left: dx = -move; case .up: dy=move; case .down: dy = -move }
-            }
-            let samples=(0..<g.fingerCount).map { i in Contact(id:String(i),x:min(0.99,max(0.01,x+Double(i)*0.06+dx)),y:min(0.99,max(0.01,y+dy)),phase:step==0 ? .began : (step==count ? .ended : .moved)) }
+            let fraction=Double(step)/Double(count)
+            let samples=path.contacts(at:fraction,phase:step==0 ? .began : (step==count ? .ended : .moved))
             let frame=NormalizedFrame(timestamp:base+fraction*duration,sessionID:session,transport:.simulation,capabilities:[.multiTouch,.contactIdentity,.normalizedCoordinates],contacts:samples,appScope:previewScope.isEmpty ? nil : previewScope,modifiers:g.modifiers)
             let timer=Timer.scheduledTimer(withTimeInterval:max(0.001,fraction*duration),repeats:false) { [weak self] _ in
                 guard let self, self.generation==epoch else { return }
