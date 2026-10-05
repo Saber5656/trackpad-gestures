@@ -65,19 +65,28 @@ public enum ActionFailure: Error, LocalizedError {
         }
     }
 }
-public protocol ActionBackend { func perform(_ action: SafeAction) throws }
+public protocol ActionBackend {
+    func perform(_ action: SafeAction) throws
+    func perform(_ action: SafeAction, completion: @escaping (Bool) -> Void) throws
+}
+public extension ActionBackend {
+    func perform(_ action: SafeAction, completion: @escaping (Bool) -> Void) throws {
+        try perform(action); completion(true)
+    }
+}
 public final class SafeActionExecutor {
     private let backend: ActionBackend
     private var lastTime: Double?
     public init(backend: ActionBackend) { self.backend = backend }
-    public func execute(_ action: SafeAction, origin: ActionOrigin, now: Double) throws {
+    public func execute(_ action: SafeAction, origin: ActionOrigin, now: Double, completion: ((Bool) -> Void)? = nil) throws {
         guard origin == .manualTest else { throw ActionFailure.previewOnly }
         try action.validate()
         guard now.isFinite, now >= 0 else { throw ActionFailure.invalid }
         if let lastTime, now - lastTime < 0.5 { throw ActionFailure.cooldown }
         // Consume the slot before dispatch, including failed dispatches.
         lastTime = now
-        try backend.perform(action)
+        if let completion { try backend.perform(action, completion: completion) }
+        else { try backend.perform(action) }
     }
 }
 func requestApplicationHide(isHidden: @escaping () -> Bool, hide: () -> Bool,
@@ -99,33 +108,34 @@ public final class WorkspaceActionBackend: ActionBackend {
     public var completion: ((Bool) -> Void)?
     public init() {}
     public func perform(_ action: SafeAction) throws {
+        try perform(action, completion: completion ?? { _ in })
+    }
+    public func perform(_ action: SafeAction, completion: @escaping (Bool) -> Void) throws {
         guard Thread.isMainThread else { throw ActionFailure.unavailable }
         try action.validate()
         switch action {
-        case .beep: NSSound.beep(); completion?(true)
+        case .beep: NSSound.beep(); completion(true)
         case .openURL(let value):
             guard let url = URL(string: value), NSWorkspace.shared.open(url) else { throw ActionFailure.unavailable }
-            completion?(true)
+            completion(true)
         case .launchApp(let id):
             guard let url = NSWorkspace.shared.urlForApplication(withBundleIdentifier: id) else { throw ActionFailure.unavailable }
-            NSWorkspace.shared.openApplication(at: url, configuration: .init()) { [weak self] app, error in
-                DispatchQueue.main.async { self?.completion?(app != nil && error == nil) }
+            NSWorkspace.shared.openApplication(at: url, configuration: .init()) { app, error in
+                DispatchQueue.main.async { completion(app != nil && error == nil) }
             }
         case .focusApp(let id):
             guard let app = NSRunningApplication.runningApplications(withBundleIdentifier: id).first,
                   app.activate(options: []) else { throw ActionFailure.unavailable }
-            completion?(true)
+            completion(true)
         case .hideApp(let id):
             guard let app = NSRunningApplication.runningApplications(withBundleIdentifier: id).first else { throw ActionFailure.unavailable }
-            requestApplicationHide(isHidden: { app.isHidden }, hide: { app.hide() }) { [weak self] success in
-                self?.completion?(success)
-            }
+            requestApplicationHide(isHidden: { app.isHidden }, hide: { app.hide() }, completion: completion)
         case .appleShortcut(let name):
             var parts = URLComponents(); parts.scheme = "shortcuts"; parts.host = "run-shortcut"
             parts.queryItems = [.init(name: "name", value: name)]
             guard let url = parts.url, NSWorkspace.shared.open(url) else { throw ActionFailure.unavailable }
             // Handler dispatch only; does not claim the shortcut completed.
-            completion?(true)
+            completion(true)
         case .keyboardShortcut: throw ActionFailure.unsupported
         }
     }

@@ -6,6 +6,16 @@ final class FakeBackend: ActionBackend {
     func perform(_ action: SafeAction) throws { calls.append(action) }
 }
 struct SafetyTests {
+    @Test func synchronousBackendReportsCompletionAndRejectionsNeverDispatch() throws {
+        let backend=FakeBackend(); let executor=SafeActionExecutor(backend:backend); var results: [Bool]=[]
+        try executor.execute(.beep,origin:.manualTest,now:1) { results.append($0) }
+        #expect(results == [true])
+        #expect(backend.calls == [.beep])
+        #expect(throws:(any Error).self) { try executor.execute(.beep,origin:.manualTest,now:1.1) { results.append($0) } }
+        #expect(throws:(any Error).self) { try executor.execute(.beep,origin:.preview,now:2) { results.append($0) } }
+        #expect(results == [true])
+        #expect(backend.calls == [.beep])
+    }
     @Test func hideFalseWaitsForAsynchronousHiddenState() {
         var hidden=false; var scheduled: [() -> Void]=[]; var results: [Bool]=[]
         requestApplicationHide(isHidden:{ hidden },hide:{ false },schedule:{ _, work in scheduled.append(work) },completion:{ results.append($0) })

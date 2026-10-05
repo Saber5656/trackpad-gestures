@@ -1,9 +1,51 @@
 import Testing
 import Foundation
 import TrackpadCore
+import MacPlatform
 @testable import TrackpadApp
 
+final class DeferredActionBackend: ActionBackend {
+    var completions: [(Bool) -> Void]=[]
+    func perform(_ action: SafeAction) throws { throw ActionFailure.unavailable }
+    func perform(_ action: SafeAction, completion: @escaping (Bool) -> Void) throws { completions.append(completion) }
+}
+
 @MainActor struct AppModelTests {
+    @Test func deferredActionFailureRecordsOnlyItsConfirmedOutcome() throws {
+        let dir=FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at:dir) }
+        let backend=DeferredActionBackend()
+        let model=AppModel(storage:dir.appendingPathComponent("profile.json"),actionBackend:backend); defer { model.shutdown() }
+        model.draft.actionKind="hide"; model.draft.actionValue="com.apple.calculator"
+        model.testAction(now:1)
+        #expect(!model.diagnostics.events.contains(.actionDispatched))
+        #expect(!model.diagnostics.events.contains(.actionFailed))
+        #expect(backend.completions.count == 1)
+        let complete=try #require(backend.completions.first)
+        complete(false)
+        #expect(model.diagnostics.events.filter { $0 == .actionFailed }.count == 1)
+        #expect(!model.diagnostics.events.contains(.actionDispatched))
+        #expect(model.status == "System handler could not dispatch the action.")
+    }
+    @Test func staleActionCompletionPreservesNewerFeedbackAndRecordsFailure() throws {
+        let dir=FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
+        defer { try? FileManager.default.removeItem(at:dir) }
+        let backend=DeferredActionBackend()
+        let model=AppModel(storage:dir.appendingPathComponent("profile.json"),actionBackend:backend); defer { model.shutdown() }
+        model.draft.actionKind="hide"; model.draft.actionValue="com.apple.calculator"
+        model.testAction(now:1)
+        let hide=try #require(backend.completions.first)
+        model.draft.actionKind="beep"; model.testAction(now:1.6)
+        #expect(backend.completions.count == 2)
+        let beep=try #require(backend.completions.last)
+        beep(true)
+        #expect(model.status == "Action dispatched to its system handler. Completion is not monitored.")
+        let newerStatus=model.status
+        hide(false)
+        #expect(model.status == newerStatus)
+        #expect(model.diagnostics.events.filter { $0 == .actionDispatched }.count == 1)
+        #expect(model.diagnostics.events.filter { $0 == .actionFailed }.count == 1)
+    }
     @Test func importDisarmsAndPreservesUnsupportedAction() throws {
         let dir=FileManager.default.temporaryDirectory.appendingPathComponent(UUID().uuidString)
         defer { try? FileManager.default.removeItem(at:dir) }

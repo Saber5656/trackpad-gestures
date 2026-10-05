@@ -145,13 +145,14 @@ final class AppModel: ObservableObject {
     })
     private var recorder=SampleRecorder()
     private var engine: GestureEngine
-    private let backend=WorkspaceActionBackend()
+    private let backend: ActionBackend
     private lazy var executor=SafeActionExecutor(backend: backend)
     private var timer: Timer?
     private var replayTimers: [Timer]=[]
     private var observers: [NSObjectProtocol]=[]
     private var workspaceObservers: [NSObjectProtocol]=[]
     private var generation=0
+    private var actionRequestID=UUID()
     private var expiry=0.0
     private var lastPublish=0.0
     private var tick=0
@@ -165,7 +166,8 @@ final class AppModel: ObservableObject {
             .appendingPathComponent("TrackpadGestures", isDirectory: true).appendingPathComponent("profiles.json")
     }
     var diagnosticURL: URL { storageURL.deletingLastPathComponent().appendingPathComponent("latest-input-check.json") }
-    init(storage: URL? = nil) {
+    init(storage: URL? = nil, actionBackend: ActionBackend = WorkspaceActionBackend()) {
+        backend=actionBackend
         storageOverride=storage
         let defaultDraft=GestureDraft()
         document = .init(profiles: [.init(id:"local", name:"My gestures", gestures:[defaultDraft.definition], actions:[defaultDraft.action])])
@@ -182,9 +184,6 @@ final class AppModel: ObservableObject {
             self.engine.cancel()
             self.status="Native \(kind) observed — sequence cancelled."
             self.diagnostics.record(.cancelled)
-        }
-        backend.completion = { [weak self] success in
-            self?.status = success ? "Action dispatched to its system handler. Completion is not monitored." : "System handler could not dispatch the action."
         }
         let nc=NSWorkspace.shared.notificationCenter
         for (name,event) in [(NSWorkspace.willSleepNotification,LifecycleEvent.sleep),(NSWorkspace.didWakeNotification,LifecycleEvent.resume),(NSWorkspace.sessionDidResignActiveNotification,LifecycleEvent.lock),(NSWorkspace.sessionDidBecomeActiveNotification,LifecycleEvent.unlock)] {
@@ -282,8 +281,17 @@ final class AppModel: ObservableObject {
         let panel=NSSavePanel(); panel.allowedContentTypes=[.json]; panel.nameFieldStringValue=name
         if panel.runModal() == .OK, let url=panel.url { try data.write(to:url,options:.atomic); status="Exported local JSON." }
     }
-    func testAction() {
-        do { try executor.execute(draft.safeAction,origin:.manualTest,now:ProcessInfo.processInfo.systemUptime); diagnostics.record(.actionDispatched) }
+    func testAction(now: Double = ProcessInfo.processInfo.systemUptime) {
+        let requestID=UUID(); actionRequestID=requestID
+        status="Waiting for the system handler."
+        do {
+            try executor.execute(draft.safeAction,origin:.manualTest,now:now) { [weak self] success in
+                guard let self else { return }
+                self.diagnostics.record(success ? .actionDispatched : .actionFailed)
+                guard self.actionRequestID == requestID else { return }
+                self.status = success ? "Action dispatched to its system handler. Completion is not monitored." : "System handler could not dispatch the action."
+            }
+        }
         catch { diagnostics.record(.actionFailed); status=(error as? LocalizedError)?.errorDescription ?? "Action unavailable." }
     }
     func startLocal() {
